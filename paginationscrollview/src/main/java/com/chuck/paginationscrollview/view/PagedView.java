@@ -48,7 +48,6 @@ import com.chuck.paginationscrollview.anim.Interpolators;
 import com.chuck.paginationscrollview.config.FeatureFlags;
 import com.chuck.paginationscrollview.pageindicators.PageIndicator;
 import com.chuck.paginationscrollview.touch.OverScroll;
-import com.chuck.paginationscrollview.util.Thunk;
 
 import java.util.ArrayList;
 
@@ -138,7 +137,7 @@ public abstract class PagedView<T extends View & PageIndicator> extends ViewGrou
     protected int mUnboundedScrollX;
 
     // Page Indicator
-    @Thunk int mPageIndicatorViewId;
+    int mPageIndicatorViewId;
     protected T mPageIndicator;
 
     // Convenience/caching

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chuck.paginationscrollview.util;
+package com.chuck.paginationscrollview.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
