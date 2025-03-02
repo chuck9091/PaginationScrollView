@@ -200,7 +200,16 @@ public class PaginationScrollView extends FrameLayout {
         return bounceAnim;
     }
 
+    private void bindAddScreens(int pageCount) {
+        for (int i = 0; i < pageCount; i++) {
+            long screenId = i;
+            workspace.insertNewWorkspaceScreenBeforeEmptyScreen(screenId);
+        }
+    }
+
     public void bindItems(final List<ItemInfo> items, final boolean forceAnimateIcons) {
+        int pageSize = items.size() / (paginationProfile.getNumColumns() * paginationProfile.getNumRows());
+        bindAddScreens(pageSize);
         // Get the list of added items and intersect them with the set of items here
         final AnimatorSet anim = LauncherAnimUtils.createAnimatorSet();
         final Collection<Animator> bounceAnims = new ArrayList<>();
