@@ -17,48 +17,15 @@
 package com.chuck.paginationscrollview.bean;
 
 import android.content.ComponentName;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.os.Process;
-import android.os.UserHandle;
-
-import com.android.launcher3.util.ContentWriter;
-import com.chuck.paginationscrollview.view.Workspace;
+import android.graphics.drawable.Drawable;
 
 /**
  * Represents an item in the launcher.
  */
 public class ItemInfo {
-
-    public static final int NO_ID = -1;
-
-    /**
-     * The id in the settings database for this item
-     */
-    public long id = NO_ID;
-
-    /**
-     * One of {@link LauncherSettings.Favorites#ITEM_TYPE_APPLICATION},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_SHORTCUT},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_DEEP_SHORTCUT}
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_FOLDER},
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_APPWIDGET} or
-     * {@link LauncherSettings.Favorites#ITEM_TYPE_CUSTOM_APPWIDGET}.
-     */
-    public int itemType;
-
-    /**
-     * The id of the container that holds this item. For the desktop, this will be
-     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. For the all applications folder it
-     * will be {@link #NO_ID} (since it is not stored in the settings DB). For user folders
-     * it will be the id of the folder.
-     */
-    public long container = NO_ID;
-
     /**
      * Indicates the screen in which the shortcut appears if the container types is
-     * {@link LauncherSettings.Favorites#CONTAINER_DESKTOP}. (i.e., ignore if the container type is
-     * {@link LauncherSettings.Favorites#CONTAINER_HOTSEAT})
      */
     public long screenId = -1;
 
@@ -83,16 +50,6 @@ public class ItemInfo {
     public int spanY = 1;
 
     /**
-     * Indicates the minimum X cell span.
-     */
-    public int minSpanX = 1;
-
-    /**
-     * Indicates the minimum Y cell span.
-     */
-    public int minSpanY = 1;
-
-    /**
      * Indicates the position in an ordered list.
      */
     public int rank = 0;
@@ -102,35 +59,19 @@ public class ItemInfo {
      */
     public CharSequence title;
 
-    /**
-     * Content description of the item.
-     */
-    public CharSequence contentDescription;
-
-    public UserHandle user;
+    public Drawable iconDrawable;
 
     public ItemInfo() {
-        user = Process.myUserHandle();
-    }
-
-    ItemInfo(ItemInfo info) {
-        copyFrom(info);
-        // tempdebug:
-        LauncherModel.checkItemInfo(this);
     }
 
     public void copyFrom(ItemInfo info) {
-        id = info.id;
         cellX = info.cellX;
         cellY = info.cellY;
         spanX = info.spanX;
         spanY = info.spanY;
         rank = info.rank;
         screenId = info.screenId;
-        itemType = info.itemType;
-        container = info.container;
-        user = info.user;
-        contentDescription = info.contentDescription;
+        iconDrawable = info.iconDrawable;
     }
 
     public Intent getIntent() {
@@ -146,56 +87,16 @@ public class ItemInfo {
         }
     }
 
-    public void writeToValues(ContentWriter writer) {
-        writer.put(LauncherSettings.Favorites.ITEM_TYPE, itemType)
-                .put(LauncherSettings.Favorites.CONTAINER, container)
-                .put(LauncherSettings.Favorites.SCREEN, screenId)
-                .put(LauncherSettings.Favorites.CELLX, cellX)
-                .put(LauncherSettings.Favorites.CELLY, cellY)
-                .put(LauncherSettings.Favorites.SPANX, spanX)
-                .put(LauncherSettings.Favorites.SPANY, spanY)
-                .put(LauncherSettings.Favorites.RANK, rank);
-    }
-
-    public void readFromValues(ContentValues values) {
-        itemType = values.getAsInteger(LauncherSettings.Favorites.ITEM_TYPE);
-        container = values.getAsLong(LauncherSettings.Favorites.CONTAINER);
-        screenId = values.getAsLong(LauncherSettings.Favorites.SCREEN);
-        cellX = values.getAsInteger(LauncherSettings.Favorites.CELLX);
-        cellY = values.getAsInteger(LauncherSettings.Favorites.CELLY);
-        spanX = values.getAsInteger(LauncherSettings.Favorites.SPANX);
-        spanY = values.getAsInteger(LauncherSettings.Favorites.SPANY);
-        rank = values.getAsInteger(LauncherSettings.Favorites.RANK);
-    }
-
-    /**
-     * Write the fields of this item to the DB
-     */
-    public void onAddToDatabase(ContentWriter writer) {
-        if (screenId == Workspace.EXTRA_EMPTY_SCREEN_ID) {
-            // We should never persist an item on the extra empty screen.
-            throw new RuntimeException("Screen id should not be EXTRA_EMPTY_SCREEN_ID");
-        }
-
-        writeToValues(writer);
-        writer.put(LauncherSettings.Favorites.PROFILE_ID, user);
-    }
-
     @Override
     public final String toString() {
         return getClass().getSimpleName() + "(" + dumpProperties() + ")";
     }
 
     protected String dumpProperties() {
-        return "id=" + id
-                + " type=" + LauncherSettings.Favorites.itemTypeToString(itemType)
-                + " container=" + LauncherSettings.Favorites.containerToString((int)container)
-                + " screen=" + screenId
+        return " screen=" + screenId
                 + " cell(" + cellX + "," + cellY + ")"
                 + " span(" + spanX + "," + spanY + ")"
-                + " minSpan(" + minSpanX + "," + minSpanY + ")"
                 + " rank=" + rank
-                + " user=" + user
                 + " title=" + title;
     }
 

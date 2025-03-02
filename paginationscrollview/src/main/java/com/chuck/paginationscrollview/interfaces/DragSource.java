@@ -18,17 +18,14 @@ package com.chuck.paginationscrollview.interfaces;
 
 import android.view.View;
 
-import com.android.launcher3.DropTarget.DragObject;
-import com.android.launcher3.logging.UserEventDispatcher.LogContainerProvider;
-
 /**
  * Interface defining an object that can originate a drag.
  */
-public interface DragSource extends LogContainerProvider {
+public interface DragSource {
 
     /**
      * A callback made back to the source after an item from this source has been dropped on a
      * DropTarget.
      */
-    void onDropCompleted(View target, DragObject d, boolean success);
+    void onDropCompleted(View target, DropTarget.DragObject d, boolean success);
 }

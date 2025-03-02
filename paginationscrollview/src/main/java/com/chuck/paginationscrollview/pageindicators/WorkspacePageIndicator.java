@@ -20,6 +20,7 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import com.chuck.paginationscrollview.builder.PageIndicatorProfile;
+import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.view.Insettable;
 import com.chuck.paginationscrollview.R;
 import com.chuck.paginationscrollview.view.PaginationScrollView;
@@ -255,7 +256,7 @@ public class WorkspacePageIndicator extends View implements Insettable, PageIndi
 
     @Override
     public void setInsets(Rect insets) {
-        PageIndicatorProfile grid = PageIndicatorProfile.getInstance();
+        PaginationProfile grid = PaginationProfile.getPaginationProfile();
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) getLayoutParams();
 
         if (grid.isVerticalBarLayout) {

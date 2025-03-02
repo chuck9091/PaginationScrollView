@@ -18,4 +18,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="default_scroll_format" msgid="7475544710230993317">"第%1$d页，共%2$d页"</string>
+    <string name="workspace_new_page" msgid="257366611030256142">"主屏幕新页面"</string>
+    <string name="all_apps_home_button_label" msgid="252062713717058851">"主屏幕"</string>
+    <string name="workspace_scroll_format" msgid="8458889198184077399">"主屏幕：第%1$d屏，共%2$d屏"</string>
+    <string name="item_moved" msgid="4606538322571412879">"已移动项目"</string>
+    <string name="move_to_empty_cell" msgid="2833711483015685619">"移至第 <xliff:g id="NUMBER_0">%1$s</xliff:g> 行第 <xliff:g id="NUMBER_1">%2$s</xliff:g> 列"</string>
+    <string name="disabled_app_label" msgid="6673129024321402780">"已停用<xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
+
+
 </resources>

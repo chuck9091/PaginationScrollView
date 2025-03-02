@@ -16,20 +16,21 @@
 
 package com.chuck.paginationscrollview.anim;
 
-import static com.android.launcher3.LauncherState.HOTSEAT_ICONS;
-import static com.android.launcher3.LauncherState.HOTSEAT_SEARCH_BOX;
-import static com.android.launcher3.graphics.WorkspaceAndHotseatScrim.SCRIM_PROGRESS;
-import static com.android.launcher3.graphics.WorkspaceAndHotseatScrim.SYSUI_PROGRESS;
 import static com.chuck.paginationscrollview.anim.AnimatorSetBuilder.ANIM_WORKSPACE_FADE;
+import static com.chuck.paginationscrollview.anim.AnimatorSetBuilder.ANIM_WORKSPACE_SCALE;
+import static com.chuck.paginationscrollview.anim.Interpolators.LINEAR;
+import static com.chuck.paginationscrollview.anim.Interpolators.ZOOM_OUT;
 import static com.chuck.paginationscrollview.anim.PropertySetter.NO_ANIM_PROPERTY_SETTER;
+import static com.chuck.paginationscrollview.util.LauncherAnimUtils.DRAWABLE_ALPHA;
+import static com.chuck.paginationscrollview.util.LauncherAnimUtils.SCALE_PROPERTY;
 
 import android.view.View;
 import android.view.animation.Interpolator;
 
-import com.android.launcher3.LauncherState.PageAlphaProvider;
-import com.android.launcher3.LauncherStateManager.AnimationConfig;
-import com.android.launcher3.graphics.WorkspaceAndHotseatScrim;
+import com.chuck.paginationscrollview.config.AnimationConfig;
+import com.chuck.paginationscrollview.config.WorkspaceState;
 import com.chuck.paginationscrollview.view.CellLayout;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.Workspace;
 
 /**
@@ -37,24 +38,19 @@ import com.chuck.paginationscrollview.view.Workspace;
  */
 public class WorkspaceStateTransitionAnimation {
 
-    private final Launcher mLauncher;
+    private final PaginationScrollView mPaginationScrollView;
     private final Workspace mWorkspace;
 
     private float mNewScale;
 
-    public WorkspaceStateTransitionAnimation(Launcher launcher, Workspace workspace) {
-        mLauncher = launcher;
+    public WorkspaceStateTransitionAnimation(PaginationScrollView paginationScrollView, Workspace workspace) {
+        mPaginationScrollView = paginationScrollView;
         mWorkspace = workspace;
     }
 
-    public void setState(LauncherState toState) {
-        setWorkspaceProperty(toState, NO_ANIM_PROPERTY_SETTER, new AnimatorSetBuilder(),
-                new AnimationConfig());
-    }
-
-    public void setStateWithAnimation(LauncherState toState, AnimatorSetBuilder builder,
-            AnimationConfig config) {
-        setWorkspaceProperty(toState, config.getPropertySetter(builder), builder, config);
+    public void setStateWithAnimation(AnimatorSetBuilder builder,
+                                      AnimationConfig config) {
+        setWorkspaceProperty(config.getPropertySetter(builder), builder, config);
     }
 
     public float getFinalScale() {
@@ -64,29 +60,21 @@ public class WorkspaceStateTransitionAnimation {
     /**
      * Starts a transition animation for the workspace.
      */
-    private void setWorkspaceProperty(LauncherState state, PropertySetter propertySetter,
-            AnimatorSetBuilder builder, AnimationConfig config) {
-        float[] scaleAndTranslation = state.getWorkspaceScaleAndTranslation(mLauncher);
+    private void setWorkspaceProperty(PropertySetter propertySetter,
+                                      AnimatorSetBuilder builder, AnimationConfig config) {
+        float[] scaleAndTranslation = WorkspaceState.getWorkspaceScaleAndTranslation();
         mNewScale = scaleAndTranslation[0];
-        PageAlphaProvider pageAlphaProvider = state.getWorkspacePageAlphaProvider(mLauncher);
+        WorkspaceState.PageAlphaProvider pageAlphaProvider = WorkspaceState.getWorkspacePageAlphaProvider(mPaginationScrollView);
         final int childCount = mWorkspace.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            applyChildState(state, (CellLayout) mWorkspace.getChildAt(i), i, pageAlphaProvider,
+            applyChildState((CellLayout) mWorkspace.getChildAt(i), i, pageAlphaProvider,
                     propertySetter, builder, config);
         }
 
-        int elements = state.getVisibleElements(mLauncher);
-        Interpolator fadeInterpolator = builder.getInterpolator(ANIM_WORKSPACE_FADE,
-                pageAlphaProvider.interpolator);
         boolean playAtomicComponent = config.playAtomicComponent();
         if (playAtomicComponent) {
             Interpolator scaleInterpolator = builder.getInterpolator(ANIM_WORKSPACE_SCALE, ZOOM_OUT);
             propertySetter.setFloat(mWorkspace, SCALE_PROPERTY, mNewScale, scaleInterpolator);
-            float hotseatIconsAlpha = (elements & HOTSEAT_ICONS) != 0 ? 1 : 0;
-            propertySetter.setViewAlpha(mLauncher.getHotseat().getLayout(), hotseatIconsAlpha,
-                    fadeInterpolator);
-            propertySetter.setViewAlpha(mLauncher.getWorkspace().getPageIndicator(),
-                    hotseatIconsAlpha, fadeInterpolator);
         }
 
         if (!config.playNonAtomicComponent()) {
@@ -99,21 +87,18 @@ public class WorkspaceStateTransitionAnimation {
                 scaleAndTranslation[1], translationInterpolator);
         propertySetter.setFloat(mWorkspace, View.TRANSLATION_Y,
                 scaleAndTranslation[2], translationInterpolator);
-
-        propertySetter.setViewAlpha(mLauncher.getHotseatSearchBox(),
-                (elements & HOTSEAT_SEARCH_BOX) != 0 ? 1 : 0, fadeInterpolator);
     }
 
-    public void applyChildState(LauncherState state, CellLayout cl, int childIndex) {
-        applyChildState(state, cl, childIndex, state.getWorkspacePageAlphaProvider(mLauncher),
+    public void applyChildState(CellLayout cl, int childIndex) {
+        applyChildState(cl, childIndex, WorkspaceState.getWorkspacePageAlphaProvider(mPaginationScrollView),
                 NO_ANIM_PROPERTY_SETTER, new AnimatorSetBuilder(), new AnimationConfig());
     }
 
-    private void applyChildState(LauncherState state, CellLayout cl, int childIndex,
-            PageAlphaProvider pageAlphaProvider, PropertySetter propertySetter,
-            AnimatorSetBuilder builder, AnimationConfig config) {
+    private void applyChildState(CellLayout cl, int childIndex,
+                                 WorkspaceState.PageAlphaProvider pageAlphaProvider, PropertySetter propertySetter,
+                                 AnimatorSetBuilder builder, AnimationConfig config) {
         float pageAlpha = pageAlphaProvider.getPageAlpha(childIndex);
-        int drawableAlpha = Math.round(pageAlpha * (state.hasWorkspacePageBackground ? 255 : 0));
+        int drawableAlpha = Math.round(pageAlpha * (WorkspaceState.hasWorkspacePageBackground ? 255 : 0));
 
         if (config.playNonAtomicComponent()) {
             propertySetter.setInt(cl.getScrimBackground(),

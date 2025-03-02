@@ -28,9 +28,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
 
-import com.android.launcher3.Launcher;
-import com.android.launcher3.R;
+import com.chuck.paginationscrollview.R;
 import com.chuck.paginationscrollview.config.FeatureFlags;
+import com.chuck.paginationscrollview.view.BubbleTextView;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.UiThreadHelper;
 
 import java.nio.ByteBuffer;
@@ -87,24 +88,10 @@ public class DragPreviewProvider {
             final Rect clipRect = mTempRect;
             mView.getDrawingRect(clipRect);
 
-            boolean textVisible = false;
-            if (mView instanceof FolderIcon) {
-                // For FolderIcons the text can bleed into the icon area, and so we need to
-                // hide the text completely (which can't be achieved by clipping).
-                if (((FolderIcon) mView).getTextVisible()) {
-                    ((FolderIcon) mView).setTextVisible(false);
-                    textVisible = true;
-                }
-            }
             destCanvas.translate(-mView.getScrollX() + blurSizeOutline / 2,
                     -mView.getScrollY() + blurSizeOutline / 2);
             destCanvas.clipRect(clipRect);
             mView.draw(destCanvas);
-
-            // Restore text visibility of FolderIcon if necessary
-            if (textVisible) {
-                ((FolderIcon) mView).setTextVisible(true);
-            }
         }
         destCanvas.restore();
     }
@@ -122,14 +109,6 @@ public class DragPreviewProvider {
             Rect bounds = getDrawableBounds(d);
             width = bounds.width();
             height = bounds.height();
-        } else if (mView instanceof LauncherAppWidgetHostView) {
-            float scale = ((LauncherAppWidgetHostView) mView).getScaleToFit();
-            width = (int) (mView.getWidth() * scale);
-            height = (int) (mView.getHeight() * scale);
-
-            // Use software renderer for widgets as we know that they already work
-            return BitmapRenderer.createSoftwareBitmap(width + blurSizeOutline,
-                    height + blurSizeOutline, (c) -> drawDragView(c, scale));
         }
 
         return BitmapRenderer.createHardwareBitmap(width + blurSizeOutline,
@@ -157,13 +136,7 @@ public class DragPreviewProvider {
     }
 
     public float getScaleAndPosition(Bitmap preview, int[] outPos) {
-        float scale = Launcher.getLauncher(mView.getContext())
-                .getDragLayer().getLocationInDragLayer(mView, outPos);
-        if (mView instanceof LauncherAppWidgetHostView) {
-            // App widgets are technically scaled, but are drawn at their expected size -- so the
-            // app widget scale should not affect the scale of the preview.
-            scale /= ((LauncherAppWidgetHostView) mView).getScaleToFit();
-        }
+        float scale = PaginationScrollView.getInstance().getDragLayer().getLocationInDragLayer(mView, outPos);
 
         outPos[0] = Math.round(outPos[0] -
                 (preview.getWidth() - scale * mView.getWidth() * mView.getScaleX()) / 2);

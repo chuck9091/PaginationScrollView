@@ -16,7 +16,6 @@
 
 package com.chuck.paginationscrollview.dragndrop;
 
-import static com.android.launcher3.Utilities.SINGLE_FRAME_MS;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -27,26 +26,23 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 
-import com.android.launcher3.AbstractFloatingView;
-import com.android.launcher3.BaseActivity;
-import com.android.launcher3.BaseDraggingActivity;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.util.MultiValueAlpha;
-import com.android.launcher3.util.MultiValueAlpha.AlphaProperty;
-import com.android.launcher3.util.TouchController;
+import com.chuck.paginationscrollview.interfaces.TouchController;
+import com.chuck.paginationscrollview.util.MultiValueAlpha;
 import com.chuck.paginationscrollview.view.InsettableFrameLayout;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
+import com.chuck.paginationscrollview.view.Utilities;
 
 import java.util.ArrayList;
 
 /**
  * A viewgroup with utility methods for drag-n-drop and touch interception
  */
-public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends InsettableFrameLayout {
+public abstract class BaseDragLayer<T extends ViewGroup> extends InsettableFrameLayout {
 
     protected final int[] mTmpXY = new int[2];
     protected final Rect mHitRect = new Rect();
 
-    protected final T mActivity;
+    protected final T mPaginationScrollView;
     private final MultiValueAlpha mMultiValueAlpha;
 
     protected TouchController[] mControllers;
@@ -55,7 +51,7 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
 
     public BaseDragLayer(Context context, AttributeSet attrs, int alphaChannelCount) {
         super(context, attrs);
-        mActivity = (T) BaseActivity.fromContext(context);
+        mPaginationScrollView = (T) PaginationScrollView.getInstance();
         mMultiValueAlpha = new MultiValueAlpha(this, alphaChannelCount);
     }
 
@@ -74,19 +70,13 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
             }
             mTouchCompleteListener = null;
         } else if (action == MotionEvent.ACTION_DOWN) {
-            mActivity.finishAutoCancelActionMode();
+//            mActivity.finishAutoCancelActionMode();
         }
         return findActiveController(ev);
     }
 
     protected boolean findActiveController(MotionEvent ev) {
         mActiveController = null;
-
-        AbstractFloatingView topView = AbstractFloatingView.getTopOpenView(mActivity);
-        if (topView != null && topView.onControllerInterceptTouchEvent(ev)) {
-            mActiveController = topView;
-            return true;
-        }
 
         for (TouchController controller : mControllers) {
             if (controller.onControllerInterceptTouchEvent(ev)) {
@@ -99,30 +89,12 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
 
     @Override
     public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {
-        // Shortcuts can appear above folder
-        View topView = AbstractFloatingView.getTopOpenViewWithType(mActivity,
-                AbstractFloatingView.TYPE_ACCESSIBLE);
-        if (topView != null) {
-            if (child == topView) {
-                return super.onRequestSendAccessibilityEvent(child, event);
-            }
-            // Skip propagating onRequestSendAccessibilityEvent for all other children
-            // which are not topView
-            return false;
-        }
         return super.onRequestSendAccessibilityEvent(child, event);
     }
 
     @Override
     public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {
-        View topView = AbstractFloatingView.getTopOpenViewWithType(mActivity,
-                AbstractFloatingView.TYPE_ACCESSIBLE);
-        if (topView != null) {
-            // Only add the top view as a child for accessibility when it is open
-            addAccessibleChildToList(topView, childrenForAccessibility);
-        } else {
-            super.addChildrenForAccessibility(childrenForAccessibility);
-        }
+        super.addChildrenForAccessibility(childrenForAccessibility);
     }
 
     protected void addAccessibleChildToList(View child, ArrayList<View> outList) {
@@ -136,16 +108,6 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
     @Override
     public void onViewRemoved(View child) {
         super.onViewRemoved(child);
-        if (child instanceof AbstractFloatingView) {
-            // Handles the case where the view is removed without being properly closed.
-            // This can happen if something goes wrong during a state change/transition.
-            postDelayed(() -> {
-                AbstractFloatingView floatingView = (AbstractFloatingView) child;
-                if (floatingView.isOpen()) {
-                    floatingView.close(false);
-                }
-            }, SINGLE_FRAME_MS);
-        }
     }
 
     @Override
@@ -237,27 +199,17 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
     @Override
     public boolean dispatchUnhandledMove(View focused, int direction) {
         // Consume the unhandled move if a container is open, to avoid switching pages underneath.
-        return AbstractFloatingView.getTopOpenView(mActivity) != null;
+        return false;
     }
 
     @Override
     protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
-        View topView = AbstractFloatingView.getTopOpenView(mActivity);
-        if (topView != null) {
-            return topView.requestFocus(direction, previouslyFocusedRect);
-        } else {
-            return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
-        }
+        return super.onRequestFocusInDescendants(direction, previouslyFocusedRect);
     }
 
     @Override
     public void addFocusables(ArrayList<View> views, int direction, int focusableMode) {
-        View topView = AbstractFloatingView.getTopOpenView(mActivity);
-        if (topView != null) {
-            topView.addFocusables(views, direction);
-        } else {
-            super.addFocusables(views, direction, focusableMode);
-        }
+        super.addFocusables(views, direction, focusableMode);
     }
 
     public void setTouchCompleteListener(TouchCompleteListener listener) {
@@ -289,7 +241,7 @@ public abstract class BaseDragLayer<T extends BaseDraggingActivity> extends Inse
         return new LayoutParams(p);
     }
 
-    public AlphaProperty getAlphaProperty(int index) {
+    public MultiValueAlpha.AlphaProperty getAlphaProperty(int index) {
         return mMultiValueAlpha.getProperty(index);
     }
 

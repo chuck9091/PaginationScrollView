@@ -47,12 +47,13 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.IntDef;
 import androidx.core.view.ViewCompat;
 
-import com.android.launcher3.LauncherSettings.Favorites;
+import com.chuck.paginationscrollview.R;
 import com.chuck.paginationscrollview.anim.Interpolators;
 import com.chuck.paginationscrollview.anim.InterruptibleInOutAnimator;
 import com.chuck.paginationscrollview.anim.PropertyListBuilder;
 import com.chuck.paginationscrollview.annotation.Thunk;
 import com.chuck.paginationscrollview.bean.ItemInfo;
+import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.helper.DragPreviewProvider;
 import com.chuck.paginationscrollview.helper.StylusEventHelper;
 import com.chuck.paginationscrollview.interfaces.DropTarget;
@@ -78,7 +79,7 @@ public class CellLayout extends ViewGroup {
     private static final String TAG = "CellLayout";
     private static final boolean LOGD = false;
 
-    private final Launcher mLauncher;
+    private final PaginationScrollView mPaginationScrollView;
     @ViewDebug.ExportedProperty(category = "launcher")
     @Thunk
     int mCellWidth;
@@ -107,9 +108,6 @@ public class CellLayout extends ViewGroup {
 
     private OnTouchListener mInterceptTouchListener;
     private final StylusEventHelper mStylusEventHelper;
-
-    private final ArrayList<PreviewBackground> mFolderBackgrounds = new ArrayList<>();
-    final PreviewBackground mFolderLeaveBehind = new PreviewBackground();
 
     private static final int[] BACKGROUND_STATE_ACTIVE = new int[]{android.R.attr.state_active};
     private static final int[] BACKGROUND_STATE_DEFAULT = EMPTY_STATE_SET;
@@ -208,23 +206,20 @@ public class CellLayout extends ViewGroup {
         // the user where a dragged item will land when dropped.
         setWillNotDraw(false);
         setClipToPadding(false);
-        mLauncher = Launcher.getLauncher(context);
+        mPaginationScrollView = PaginationScrollView.getInstance();
 
-        DeviceProfile grid = mLauncher.getDeviceProfile();
+        PaginationProfile grid = PaginationProfile.getPaginationProfile();
 
         mCellWidth = mCellHeight = -1;
         mFixedCellWidth = mFixedCellHeight = -1;
 
-        mCountX = grid.inv.numColumns;
-        mCountY = grid.inv.numRows;
+        mCountX = grid.numColumns;
+        mCountY = grid.numRows;
         mOccupied = new GridOccupancy(mCountX, mCountY);
         mTmpOccupied = new GridOccupancy(mCountX, mCountY);
 
         mPreviousReorderDirection[0] = INVALID_DIRECTION;
         mPreviousReorderDirection[1] = INVALID_DIRECTION;
-
-        mFolderLeaveBehind.delegateCellX = -1;
-        mFolderLeaveBehind.delegateCellY = -1;
 
         setAlwaysDrawnWithCacheEnabled(false);
         final Resources res = getResources();
@@ -336,8 +331,7 @@ public class CellLayout extends ViewGroup {
         // the home screen mode, however, once in overview mode stylus button press should be
         // enabled to allow rearranging the different home screens. So check what mode
         // the workspace is in, and only perform stylus button presses while in overview mode.
-        if (mLauncher.isInState(LauncherState.OVERVIEW)
-                && mStylusEventHelper.onMotionEvent(ev)) {
+        if (mStylusEventHelper.onMotionEvent(ev)) {
             return true;
         }
         return handled;
@@ -448,67 +442,11 @@ public class CellLayout extends ViewGroup {
                 }
             }
         }
-
-        for (int i = 0; i < mFolderBackgrounds.size(); i++) {
-            PreviewBackground bg = mFolderBackgrounds.get(i);
-            cellToPoint(bg.delegateCellX, bg.delegateCellY, mTempLocation);
-            canvas.save();
-            canvas.translate(mTempLocation[0], mTempLocation[1]);
-            bg.drawBackground(canvas);
-            if (!bg.isClipping) {
-                bg.drawBackgroundStroke(canvas);
-            }
-            canvas.restore();
-        }
-
-        if (mFolderLeaveBehind.delegateCellX >= 0 && mFolderLeaveBehind.delegateCellY >= 0) {
-            cellToPoint(mFolderLeaveBehind.delegateCellX,
-                    mFolderLeaveBehind.delegateCellY, mTempLocation);
-            canvas.save();
-            canvas.translate(mTempLocation[0], mTempLocation[1]);
-            mFolderLeaveBehind.drawLeaveBehind(canvas);
-            canvas.restore();
-        }
     }
 
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-
-        for (int i = 0; i < mFolderBackgrounds.size(); i++) {
-            PreviewBackground bg = mFolderBackgrounds.get(i);
-            if (bg.isClipping) {
-                cellToPoint(bg.delegateCellX, bg.delegateCellY, mTempLocation);
-                canvas.save();
-                canvas.translate(mTempLocation[0], mTempLocation[1]);
-                bg.drawBackgroundStroke(canvas);
-                canvas.restore();
-            }
-        }
-    }
-
-    public void addFolderBackground(PreviewBackground bg) {
-        mFolderBackgrounds.add(bg);
-    }
-
-    public void removeFolderBackground(PreviewBackground bg) {
-        mFolderBackgrounds.remove(bg);
-    }
-
-    public void setFolderLeaveBehindCell(int x, int y) {
-        View child = getChildAt(x, y);
-        mFolderLeaveBehind.setup(mLauncher, null,
-                child.getMeasuredWidth(), child.getPaddingTop());
-
-        mFolderLeaveBehind.delegateCellX = x;
-        mFolderLeaveBehind.delegateCellY = y;
-        invalidate();
-    }
-
-    public void clearFolderLeaveBehind() {
-        mFolderLeaveBehind.delegateCellX = -1;
-        mFolderLeaveBehind.delegateCellY = -1;
-        invalidate();
     }
 
     @Override
@@ -751,8 +689,8 @@ public class CellLayout extends ViewGroup {
         int childWidthSize = widthSize - (getPaddingLeft() + getPaddingRight());
         int childHeightSize = heightSize - (getPaddingTop() + getPaddingBottom());
         if (mFixedCellWidth < 0 || mFixedCellHeight < 0) {
-            int cw = DeviceProfile.calculateCellWidth(childWidthSize, mCountX);
-            int ch = DeviceProfile.calculateCellHeight(childHeightSize, mCountY);
+            int cw = PaginationProfile.calculateCellWidth(childWidthSize, mCountX);
+            int ch = PaginationProfile.calculateCellHeight(childHeightSize, mCountY);
             if (cw != mCellWidth || ch != mCellHeight) {
                 mCellWidth = cw;
                 mCellHeight = ch;
@@ -805,7 +743,7 @@ public class CellLayout extends ViewGroup {
     /**
      * Returns the amount of space left over after subtracting padding and cells. This space will be
      * very small, a few pixels at most, and is a result of rounding down when calculating the cell
-     * width in {@link DeviceProfile#calculateCellWidth(int, int)}.
+     * width in {@link PaginationProfile}.
      */
     public int getUnusedHorizontalSpace() {
         return getMeasuredWidth() - getPaddingLeft() - getPaddingRight() - (mCountX * mCellWidth);
@@ -985,13 +923,8 @@ public class CellLayout extends ViewGroup {
 
     @SuppressLint("StringFormatMatches")
     public String getItemMoveDescription(int cellX, int cellY) {
-        if (mContainerType == HOTSEAT) {
-            return getContext().getString(R.string.move_to_hotseat_position,
-                    Math.max(cellX, cellY) + 1);
-        } else {
-            return getContext().getString(R.string.move_to_empty_cell,
-                    cellY + 1, cellX + 1);
-        }
+        return getContext().getString(R.string.move_to_empty_cell,
+                cellY + 1, cellX + 1);
     }
 
     public void clearDragOutlines() {
@@ -2034,38 +1967,6 @@ public class CellLayout extends ViewGroup {
 
     private void commitTempPlacement() {
         mTmpOccupied.copyTo(mOccupied);
-
-        long screenId = mLauncher.getWorkspace().getIdForScreen(this);
-        int container = Favorites.CONTAINER_DESKTOP;
-
-        if (mContainerType == HOTSEAT) {
-            screenId = -1;
-            container = Favorites.CONTAINER_HOTSEAT;
-        }
-
-        int childCount = mShortcutsAndWidgets.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = mShortcutsAndWidgets.getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            ItemInfo info = (ItemInfo) child.getTag();
-            // We do a null check here because the item info can be null in the case of the
-            // AllApps button in the hotseat.
-            if (info != null) {
-                final boolean requiresDbUpdate = (info.cellX != lp.tmpCellX
-                        || info.cellY != lp.tmpCellY || info.spanX != lp.cellHSpan
-                        || info.spanY != lp.cellVSpan);
-
-                info.cellX = lp.cellX = lp.tmpCellX;
-                info.cellY = lp.cellY = lp.tmpCellY;
-                info.spanX = lp.cellHSpan;
-                info.spanY = lp.cellVSpan;
-
-                if (requiresDbUpdate) {
-                    mLauncher.getModelWriter().modifyItemInDatabase(info, container, screenId,
-                            info.cellX, info.cellY, info.spanX, info.spanY);
-                }
-            }
-        }
     }
 
     private void setUseTempCoords(boolean useTempCoords) {
@@ -2693,7 +2594,6 @@ public class CellLayout extends ViewGroup {
     public static final class CellInfo extends CellAndSpan {
         public final View cell;
         final long screenId;
-        final long container;
 
         public CellInfo(View v, ItemInfo info) {
             cellX = info.cellX;
@@ -2702,7 +2602,6 @@ public class CellLayout extends ViewGroup {
             spanY = info.spanY;
             cell = v;
             screenId = info.screenId;
-            container = info.container;
         }
 
         @Override
@@ -2722,8 +2621,8 @@ public class CellLayout extends ViewGroup {
         for (int cellX = 0; cellX < getCountX(); cellX++) {
             for (int cellY = 0; cellY < getCountY(); cellY++) {
                 cellToPoint(cellX, cellY, cellPoint);
-                if (findReorderSolution(cellPoint[0], cellPoint[1], itemInfo.minSpanX,
-                        itemInfo.minSpanY, itemInfo.spanX, itemInfo.spanY, mDirectionVector, null,
+                if (findReorderSolution(cellPoint[0], cellPoint[1], 1,
+                        1, itemInfo.spanX, itemInfo.spanY, mDirectionVector, null,
                         true, new ItemConfiguration()).isSolution) {
                     return true;
                 }

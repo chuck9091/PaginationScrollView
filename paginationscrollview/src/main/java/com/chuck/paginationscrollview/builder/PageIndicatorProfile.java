@@ -1,28 +1,16 @@
 package com.chuck.paginationscrollview.builder;
 
-import android.graphics.Rect;
 
-public final class PageIndicatorProfile {
+public final class PageIndicatorProfile extends BaseProfile {
 
-    private static PageIndicatorProfile pageIndicatorProfile = new PageIndicatorProfile();
-
-    public Rect workspacePadding;
-
-    public int workspaceCellPaddingXPx;
-
-    public boolean isVerticalBarLayout;
-
-    public PageIndicatorProfile() {
+    private PageIndicatorProfile(Builder builder) {
+        super(builder);
     }
 
-    public PageIndicatorProfile(Rect workspacePadding, int workspaceCellPaddingXPx, boolean isVerticalBarLayout) {
-        this.workspacePadding = workspacePadding;
-        this.workspaceCellPaddingXPx = workspaceCellPaddingXPx;
-        this.isVerticalBarLayout = isVerticalBarLayout;
-        pageIndicatorProfile = this;
-    }
-
-    public static PageIndicatorProfile getInstance() {
-        return pageIndicatorProfile;
+    public static final class Builder extends BaseBuilder {
+        @Override
+        public PageIndicatorProfile build() {
+            return new PageIndicatorProfile(this);
+        }
     }
 }

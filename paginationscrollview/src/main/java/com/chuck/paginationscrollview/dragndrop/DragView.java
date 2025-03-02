@@ -16,15 +16,14 @@
 
 package com.chuck.paginationscrollview.dragndrop;
 
-import static com.android.launcher3.ItemInfoWithIcon.FLAG_ICON_BADGED;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.FloatArrayEvaluator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.TargetApi;
-import android.content.pm.LauncherActivityInfo;
+import android.content.Context;
+import android.content.pm.LauncherApps;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -34,42 +33,24 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.InsetDrawable;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.animation.FloatPropertyCompat;
-import android.support.animation.SpringAnimation;
-import android.support.animation.SpringForce;
 import android.view.View;
 
-import com.android.launcher3.FastBitmapDrawable;
-import com.android.launcher3.ItemInfo;
-import com.android.launcher3.ItemInfoWithIcon;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.LauncherAnimUtils;
-import com.android.launcher3.LauncherAppState;
-import com.android.launcher3.LauncherModel;
-import com.android.launcher3.LauncherSettings;
-import com.android.launcher3.R;
-import com.android.launcher3.Utilities;
-import com.android.launcher3.anim.Interpolators;
-import com.android.launcher3.compat.LauncherAppsCompat;
-import com.android.launcher3.compat.ShortcutConfigActivityInfo;
-import com.android.launcher3.config.FeatureFlags;
-import com.android.launcher3.graphics.LauncherIcons;
-import com.android.launcher3.shortcuts.DeepShortcutManager;
-import com.android.launcher3.shortcuts.ShortcutInfoCompat;
-import com.android.launcher3.shortcuts.ShortcutKey;
-import com.android.launcher3.util.Themes;
-import com.android.launcher3.util.Thunk;
-import com.android.launcher3.widget.PendingAddShortcutInfo;
+import androidx.dynamicanimation.animation.FloatPropertyCompat;
+import androidx.dynamicanimation.animation.SpringAnimation;
+import androidx.dynamicanimation.animation.SpringForce;
+
+import com.chuck.paginationscrollview.R;
+import com.chuck.paginationscrollview.anim.Interpolators;
+import com.chuck.paginationscrollview.annotation.Thunk;
+import com.chuck.paginationscrollview.util.LauncherAnimUtils;
+import com.chuck.paginationscrollview.util.Themes;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
+import com.chuck.paginationscrollview.view.Utilities;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class DragView extends View {
     private static final ColorMatrix sTempMatrix1 = new ColorMatrix();
@@ -93,9 +74,15 @@ public class DragView extends View {
 
     private Point mDragVisualizeOffset = null;
     private Rect mDragRegion = null;
-    private final Launcher mLauncher;
+    private final PaginationScrollView paginationScrollView;
+
+    private final Context mContext;
+
     private final DragLayer mDragLayer;
-    @Thunk final DragController mDragController;
+
+    private final LauncherApps mLauncherApps;
+    @Thunk
+    final DragController mDragController;
     private boolean mHasDrawn = false;
     @Thunk float mCrossFadeProgress = 0f;
     private boolean mAnimationCancelled = false;
@@ -125,17 +112,19 @@ public class DragView extends View {
      * <p>
      * The registration point is the point inside our view that the touch events should
      * be centered upon.
-     * @param launcher The Launcher instance
+     * @param paginationScrollView The paginationScrollView instance
      * @param bitmap The view that we're dragging around.  We scale it up when we draw it.
      * @param registrationX The x coordinate of the registration point.
      * @param registrationY The y coordinate of the registration point.
      */
-    public DragView(Launcher launcher, Bitmap bitmap, int registrationX, int registrationY,
+    public DragView(PaginationScrollView paginationScrollView, Bitmap bitmap, int registrationX, int registrationY,
                     final float initialScale, final float scaleOnDrop, final float finalScaleDps) {
-        super(launcher);
-        mLauncher = launcher;
-        mDragLayer = launcher.getDragLayer();
-        mDragController = launcher.getDragController();
+        super(paginationScrollView.getContext());
+        mContext = paginationScrollView.getContext();
+        mLauncherApps = (LauncherApps) mContext.getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        this.paginationScrollView = paginationScrollView;
+        mDragLayer = paginationScrollView.getDragLayer();
+        mDragController = paginationScrollView.getDragController();
 
         final float scale = (bitmap.getWidth() + finalScaleDps) / bitmap.getWidth();
 
@@ -191,97 +180,6 @@ public class DragView extends View {
         setElevation(getResources().getDimension(R.dimen.drag_elevation));
     }
 
-    /**
-     * Initialize {@code #mIconDrawable} if the item can be represented using
-     * an {@link AdaptiveIconDrawable} or {@link FolderAdaptiveIcon}.
-     */
-    @TargetApi(Build.VERSION_CODES.O)
-    public void setItemInfo(final ItemInfo info) {
-        if (!(FeatureFlags.LAUNCHER3_SPRING_ICONS && Utilities.ATLEAST_OREO)) {
-            return;
-        }
-        if (info.itemType != LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT &&
-                info.itemType != LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-            return;
-        }
-        // Load the adaptive icon on a background thread and add the view in ui thread.
-        final Looper workerLooper = LauncherModel.getWorkerLooper();
-        new Handler(workerLooper).postAtFrontOfQueue(new Runnable() {
-            @Override
-            public void run() {
-                LauncherAppState appState = LauncherAppState.getInstance(mLauncher);
-                Object[] outObj = new Object[1];
-                final Drawable dr = getFullDrawable(info, appState, outObj);
-
-                if (dr instanceof AdaptiveIconDrawable) {
-                    int w = mBitmap.getWidth();
-                    int h = mBitmap.getHeight();
-                    int blurMargin = (int) mLauncher.getResources()
-                            .getDimension(R.dimen.blur_size_medium_outline) / 2;
-
-                    Rect bounds = new Rect(0, 0, w, h);
-                    bounds.inset(blurMargin, blurMargin);
-                    // Badge is applied after icon normalization so the bounds for badge should not
-                    // be scaled down due to icon normalization.
-                    Rect badgeBounds = new Rect(bounds);
-                    mBadge = getBadge(info, appState, outObj[0]);
-                    mBadge.setBounds(badgeBounds);
-
-                    LauncherIcons li = LauncherIcons.obtain(mLauncher);
-                    Utilities.scaleRectAboutCenter(bounds,
-                            li.getNormalizer().getScale(dr, null, null, null));
-                    li.recycle();
-                    AdaptiveIconDrawable adaptiveIcon = (AdaptiveIconDrawable) dr;
-
-                    // Shrink very tiny bit so that the clip path is smaller than the original bitmap
-                    // that has anti aliased edges and shadows.
-                    Rect shrunkBounds = new Rect(bounds);
-                    Utilities.scaleRectAboutCenter(shrunkBounds, 0.98f);
-                    adaptiveIcon.setBounds(shrunkBounds);
-                    final Path mask = adaptiveIcon.getIconMask();
-
-                    mTranslateX = new SpringFloatValue(DragView.this,
-                            w * AdaptiveIconDrawable.getExtraInsetFraction());
-                    mTranslateY = new SpringFloatValue(DragView.this,
-                            h * AdaptiveIconDrawable.getExtraInsetFraction());
-
-                    bounds.inset(
-                            (int) (-bounds.width() * AdaptiveIconDrawable.getExtraInsetFraction()),
-                            (int) (-bounds.height() * AdaptiveIconDrawable.getExtraInsetFraction())
-                    );
-                    mBgSpringDrawable = adaptiveIcon.getBackground();
-                    if (mBgSpringDrawable == null) {
-                        mBgSpringDrawable = new ColorDrawable(Color.TRANSPARENT);
-                    }
-                    mBgSpringDrawable.setBounds(bounds);
-                    mFgSpringDrawable = adaptiveIcon.getForeground();
-                    if (mFgSpringDrawable == null) {
-                        mFgSpringDrawable = new ColorDrawable(Color.TRANSPARENT);
-                    }
-                    mFgSpringDrawable.setBounds(bounds);
-
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // Assign the variable on the UI thread to avoid race conditions.
-                            mScaledMaskPath = mask;
-
-                            // Do not draw the background in case of folder as its translucent
-                            mDrawBitmap = !(dr instanceof FolderAdaptiveIcon);
-
-                            if (info.isDisabled()) {
-                                FastBitmapDrawable d = new FastBitmapDrawable((Bitmap) null);
-                                d.setIsDisabled(true);
-                                mBaseFilter = (ColorMatrixColorFilter) d.getColorFilter();
-                            }
-                            updateColorFilter();
-                        }
-                    });
-                }
-            }});
-    }
-
     @TargetApi(Build.VERSION_CODES.O)
     private void updateColorFilter() {
         if (mCurrentFilter == null) {
@@ -312,83 +210,6 @@ public class DragView extends View {
         }
 
         invalidate();
-    }
-
-    /**
-     * Returns the full drawable for {@param info}.
-     * @param outObj this is set to the internal data associated with {@param info},
-     *               eg {@link LauncherActivityInfo} or {@link ShortcutInfoCompat}.
-     */
-    private Drawable getFullDrawable(ItemInfo info, LauncherAppState appState, Object[] outObj) {
-        if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION) {
-            LauncherActivityInfo activityInfo = LauncherAppsCompat.getInstance(mLauncher)
-                    .resolveActivity(info.getIntent(), info.user);
-            outObj[0] = activityInfo;
-            return (activityInfo != null) ? appState.getIconCache()
-                    .getFullResIcon(activityInfo, false) : null;
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-            if (info instanceof PendingAddShortcutInfo) {
-                ShortcutConfigActivityInfo activityInfo =
-                        ((PendingAddShortcutInfo) info).activityInfo;
-                outObj[0] = activityInfo;
-                return activityInfo.getFullResIcon(appState.getIconCache());
-            }
-            ShortcutKey key = ShortcutKey.fromItemInfo(info);
-            DeepShortcutManager sm = DeepShortcutManager.getInstance(mLauncher);
-            List<ShortcutInfoCompat> si = sm.queryForFullDetails(
-                    key.componentName.getPackageName(), Arrays.asList(key.getId()), key.user);
-            if (si.isEmpty()) {
-                return null;
-            } else {
-                outObj[0] = si.get(0);
-                return sm.getShortcutIconDrawable(si.get(0),
-                        appState.getInvariantDeviceProfile().fillResIconDpi);
-            }
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-            FolderAdaptiveIcon icon =  FolderAdaptiveIcon.createFolderAdaptiveIcon(
-                    mLauncher, info.id, new Point(mBitmap.getWidth(), mBitmap.getHeight()));
-            if (icon == null) {
-                return null;
-            }
-            outObj[0] = icon;
-            return icon;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * For apps icons and shortcut icons that have badges, this method creates a drawable that can
-     * later on be rendered on top of the layers for the badges. For app icons, work profile badges
-     * can only be applied. For deep shortcuts, when dragged from the pop up container, there's no
-     * badge. When dragged from workspace or folder, it may contain app AND/OR work profile badge
-     **/
-
-    @TargetApi(Build.VERSION_CODES.O)
-    private Drawable getBadge(ItemInfo info, LauncherAppState appState, Object obj) {
-        int iconSize = appState.getInvariantDeviceProfile().iconBitmapSize;
-        if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_DEEP_SHORTCUT) {
-            boolean iconBadged = (info instanceof ItemInfoWithIcon)
-                    && (((ItemInfoWithIcon) info).runtimeStatusFlags & FLAG_ICON_BADGED) > 0;
-            if ((info.id == ItemInfo.NO_ID && !iconBadged)
-                    || !(obj instanceof ShortcutInfoCompat)) {
-                // The item is not yet added on home screen.
-                return new FixedSizeEmptyDrawable(iconSize);
-            }
-            ShortcutInfoCompat si = (ShortcutInfoCompat) obj;
-            LauncherIcons li = LauncherIcons.obtain(appState.getContext());
-            Bitmap badge = li.getShortcutInfoBadge(si, appState.getIconCache()).iconBitmap;
-            li.recycle();
-            float badgeSize = mLauncher.getResources().getDimension(R.dimen.profile_badge_size);
-            float insetFraction = (iconSize - badgeSize) / iconSize;
-            return new InsetDrawable(new FastBitmapDrawable(badge),
-                    insetFraction, insetFraction, 0, 0);
-        } else if (info.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-            return ((FolderAdaptiveIcon) obj).getBadge();
-        } else {
-            return mLauncher.getPackageManager()
-                    .getUserBadgedIcon(new FixedSizeEmptyDrawable(iconSize), info.user);
-        }
     }
 
     @Override

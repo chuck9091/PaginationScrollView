@@ -22,7 +22,6 @@ import static com.chuck.paginationscrollview.compat.AccessibilityManagerCompat.i
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.android.launcher3.Launcher;
 
 /**
  * Periodically sends accessibility events to announce ongoing state changed. Based on the
@@ -55,8 +54,6 @@ public class DragViewStateAnnouncer implements Runnable {
 
     public void completeAction(int announceResId) {
         cancel();
-        Launcher launcher = Launcher.getLauncher(mTargetView.getContext());
-        launcher.getDragLayer().announceForAccessibility(launcher.getText(announceResId));
     }
 
     public static DragViewStateAnnouncer createFor(View v) {

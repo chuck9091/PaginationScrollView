@@ -25,6 +25,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.chuck.paginationscrollview.builder.PaginationProfile;
+
 
 public class ShortcutAndWidgetContainer extends ViewGroup {
     static final String TAG = "ShortcutAndWidgetContainer";
@@ -42,12 +44,12 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     private int mCountX;
 
-    private Launcher mLauncher;
+    private PaginationScrollView mPaginationScrollView;
     private boolean mInvertIfRtl = false;
 
     public ShortcutAndWidgetContainer(Context context, @CellLayout.ContainerType int containerType) {
         super(context);
-        mLauncher = Launcher.getLauncher(context);
+        mPaginationScrollView = PaginationScrollView.getInstance();
         mWallpaperManager = WallpaperManager.getInstance(context);
         mContainerType = containerType;
     }
@@ -100,12 +102,12 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     public int getCellContentHeight() {
         return Math.min(getMeasuredHeight(),
-                mLauncher.getDeviceProfile().getCellHeight(mContainerType));
+                PaginationProfile.getPaginationProfile().getCellHeightPx());
     }
 
     public void measureChild(View child) {
         CellLayout.LayoutParams lp = (CellLayout.LayoutParams) child.getLayoutParams();
-        final DeviceProfile profile = mLauncher.getDeviceProfile();
+        final PaginationProfile profile = PaginationProfile.getPaginationProfile();
 
 
         lp.setup(mCellWidth, mCellHeight, invertLayoutHorizontally(), mCountX);

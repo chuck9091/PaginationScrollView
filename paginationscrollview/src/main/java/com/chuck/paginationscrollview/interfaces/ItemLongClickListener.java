@@ -17,24 +17,15 @@ package com.chuck.paginationscrollview.interfaces;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.android.launcher3.LauncherState.ALL_APPS;
-import static com.android.launcher3.LauncherState.NORMAL;
-import static com.android.launcher3.LauncherState.OVERVIEW;
 
 import android.view.View;
 import android.view.View.OnLongClickListener;
 
-import com.android.launcher3.CellLayout;
-import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.ItemInfo;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.dragndrop.DragController;
-import com.android.launcher3.dragndrop.DragOptions;
-import com.android.launcher3.folder.Folder;
 import com.chuck.paginationscrollview.bean.ItemInfo;
 import com.chuck.paginationscrollview.dragndrop.DragController;
 import com.chuck.paginationscrollview.dragndrop.DragOptions;
 import com.chuck.paginationscrollview.view.CellLayout;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
 
 /**
  * Class to handle long-clicks on workspace items and start drag as a result.
@@ -48,43 +39,28 @@ public class ItemLongClickListener {
             ItemLongClickListener::onAllAppsItemLongClick;
 
     private static boolean onWorkspaceItemLongClick(View v) {
-        Launcher launcher = Launcher.getLauncher(v.getContext());
-        if (!canStartDrag(launcher)) return false;
-        if (!launcher.isInState(NORMAL) && !launcher.isInState(OVERVIEW)) return false;
+        PaginationScrollView paginationScrollView = PaginationScrollView.getInstance();
+        if (!canStartDrag(paginationScrollView)) return false;
         if (!(v.getTag() instanceof ItemInfo)) return false;
 
-        launcher.setWaitingForResult(null);
-        beginDrag(v, launcher, (ItemInfo) v.getTag(), new DragOptions());
+        beginDrag(v, paginationScrollView, (ItemInfo) v.getTag(), new DragOptions());
         return true;
     }
 
-    public static void beginDrag(View v, Launcher launcher, ItemInfo info,
+    public static void beginDrag(View v, PaginationScrollView paginationScrollView, ItemInfo info,
             DragOptions dragOptions) {
-        if (info.container >= 0) {
-            Folder folder = Folder.getOpen(launcher);
-            if (folder != null) {
-                if (!folder.getItemsInReadingOrder().contains(v)) {
-                    folder.close(true);
-                } else {
-                    folder.startDrag(v, dragOptions);
-                    return;
-                }
-            }
-        }
-
         CellLayout.CellInfo longClickCellInfo = new CellLayout.CellInfo(v, info);
-        launcher.getWorkspace().startDrag(longClickCellInfo, dragOptions);
+        paginationScrollView.getWorkspace().startDrag(longClickCellInfo, dragOptions);
     }
 
     private static boolean onAllAppsItemLongClick(View v) {
-        Launcher launcher = Launcher.getLauncher(v.getContext());
-        if (!canStartDrag(launcher)) return false;
+        PaginationScrollView paginationScrollView = PaginationScrollView.getInstance();
+        if (!canStartDrag(paginationScrollView)) return false;
         // When we have exited all apps or are in transition, disregard long clicks
-        if (!launcher.isInState(ALL_APPS) && !launcher.isInState(OVERVIEW)) return false;
-        if (launcher.getWorkspace().isSwitchingState()) return false;
+        if (paginationScrollView.getWorkspace().isSwitchingState()) return false;
 
         // Start the drag
-        final DragController dragController = launcher.getDragController();
+        final DragController dragController = paginationScrollView.getDragController();
         dragController.addDragListener(new DragController.DragListener() {
             @Override
             public void onDragStart(DropTarget.DragObject dragObject, DragOptions options) {
@@ -98,22 +74,18 @@ public class ItemLongClickListener {
             }
         });
 
-        DeviceProfile grid = launcher.getDeviceProfile();
         DragOptions options = new DragOptions();
-        options.intrinsicIconScaleFactor = (float) grid.allAppsIconSizePx / grid.iconSizePx;
-        launcher.getWorkspace().beginDragShared(v, launcher.getAppsView(), options);
+        options.intrinsicIconScaleFactor = 1;
+        paginationScrollView.getWorkspace().beginDragShared(v, null, options);
         return false;
     }
 
-    public static boolean canStartDrag(Launcher launcher) {
-        if (launcher == null) {
+    public static boolean canStartDrag(PaginationScrollView paginationScrollView) {
+        if (paginationScrollView == null) {
             return false;
         }
-        // We prevent dragging when we are loading the workspace as it is possible to pick up a view
-        // that is subsequently removed from the workspace in startBinding().
-        if (launcher.isWorkspaceLocked()) return false;
         // Return early if an item is already being dragged (e.g. when long-pressing two shortcuts)
-        if (launcher.getDragController().isDragging()) return false;
+        if (paginationScrollView.getDragController().isDragging()) return false;
 
         return true;
     }

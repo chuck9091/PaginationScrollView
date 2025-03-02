@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.chuck.paginationscrollview.view.PaginationScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:launcher="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pagination_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <com.chuck.paginationscrollview.dragndrop.DragLayer
+        android:id="@+id/drag_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:importantForAccessibility="no">
+
+        <!-- The workspace contains 5 screens of cells -->
+        <!-- DO NOT CHANGE THE ID -->
+        <com.chuck.paginationscrollview.view.Workspace
+            android:id="@+id/workspace"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:theme="@style/HomeScreenElementTheme"
+            launcher:pageIndicator="@+id/page_indicator" />
+
+        <!-- Keep these behind the workspace so that they are not visible when
+         we go into AllApps -->
+        <com.chuck.paginationscrollview.pageindicators.WorkspacePageIndicator
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/vertical_drag_handle_size"
+            android:layout_gravity="bottom|center_horizontal"
+            android:theme="@style/HomeScreenElementTheme" />
+    </com.chuck.paginationscrollview.dragndrop.DragLayer>
+
+</com.chuck.paginationscrollview.view.PaginationScrollView>

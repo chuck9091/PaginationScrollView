@@ -20,7 +20,6 @@ import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_POINTER_UP;
 import static android.view.MotionEvent.ACTION_UP;
 import static android.view.ViewConfiguration.getLongPressTimeout;
-import static com.android.launcher3.LauncherState.NORMAL;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -29,13 +28,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import com.android.launcher3.DeviceProfile;
-import com.android.launcher3.Launcher;
-import com.android.launcher3.userevent.nano.LauncherLogProto.Action;
-import com.android.launcher3.userevent.nano.LauncherLogProto.ContainerType;
-import com.android.launcher3.views.OptionsPopupView;
+import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.dragndrop.DragLayer;
 import com.chuck.paginationscrollview.view.CellLayout;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.Workspace;
 
 /**
@@ -55,14 +51,14 @@ public class WorkspaceTouchListener implements OnTouchListener, Runnable {
     private static final int STATE_COMPLETED = 3;
 
     private final Rect mTempRect = new Rect();
-    private final Launcher mLauncher;
+    private final PaginationScrollView mPaginationScrollView;
     private final Workspace mWorkspace;
     private final PointF mTouchDownPoint = new PointF();
 
     private int mLongPressState = STATE_CANCELLED;
 
-    public WorkspaceTouchListener(Launcher launcher, Workspace workspace) {
-        mLauncher = launcher;
+    public WorkspaceTouchListener(PaginationScrollView paginationScrollView, Workspace workspace) {
+        mPaginationScrollView = paginationScrollView;
         mWorkspace = workspace;
     }
 
@@ -75,8 +71,8 @@ public class WorkspaceTouchListener implements OnTouchListener, Runnable {
 
             if (handleLongPress) {
                 // Check if the event is not near the edges
-                DeviceProfile dp = mLauncher.getDeviceProfile();
-                DragLayer dl = mLauncher.getDragLayer();
+                PaginationProfile dp = PaginationProfile.getPaginationProfile();
+                DragLayer dl = mPaginationScrollView.getDragLayer();
                 Rect insets = dp.getInsets();
 
                 mTempRect.set(insets.left, insets.top, dl.getWidth() - insets.right,
@@ -158,10 +154,6 @@ public class WorkspaceTouchListener implements OnTouchListener, Runnable {
 
                 mWorkspace.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS,
                         HapticFeedbackConstants.FLAG_IGNORE_VIEW_SETTING);
-                mLauncher.getUserEventDispatcher().logActionOnContainer(Action.Touch.LONGPRESS,
-                        Action.Direction.NONE, ContainerType.WORKSPACE,
-                        mWorkspace.getCurrentPage());
-                OptionsPopupView.showDefaultOptions(mLauncher, mTouchDownPoint.x, mTouchDownPoint.y);
             } else {
                 cancelLongPress();
             }

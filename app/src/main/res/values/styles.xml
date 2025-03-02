@@ -1,0 +1,7 @@
+<resources>
+    <style name="HomeScreenElementTheme">
+        <item name="android:colorEdgeEffect">#FF212121</item>
+        <item name="android:textColorPrimary">#FF212121</item>
+        <item name="android:textColorSecondary">#FF212121</item>
+    </style>
+</resources>

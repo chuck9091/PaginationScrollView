@@ -20,8 +20,8 @@ import android.content.Context;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 
-import com.android.launcher3.DropTarget.DragObject;
-import com.android.launcher3.Utilities;
+import com.chuck.paginationscrollview.interfaces.DropTarget;
+import com.chuck.paginationscrollview.view.Utilities;
 
 /**
  * Base class for driving a drag/drop operation.
@@ -83,7 +83,7 @@ public abstract class DragDriver {
     }
 
     public static DragDriver create(Context context, DragController dragController,
-            DragObject dragObject, DragOptions options) {
+                                    DropTarget.DragObject dragObject, DragOptions options) {
         if (Utilities.ATLEAST_NOUGAT && options.systemDndStartPoint != null) {
             return new SystemDragDriver(dragController, context, dragObject);
         } else {
@@ -100,7 +100,7 @@ class SystemDragDriver extends DragDriver {
     float mLastX = 0;
     float mLastY = 0;
 
-    SystemDragDriver(DragController dragController, Context context, DragObject dragObject) {
+    SystemDragDriver(DragController dragController, Context context, DropTarget.DragObject dragObject) {
         super(dragController);
     }
 

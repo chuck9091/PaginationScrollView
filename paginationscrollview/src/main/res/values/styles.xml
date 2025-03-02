@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+/*
+* Copyright (C) 2008 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+-->
+
+<resources>
+    <!-- Base theme for BubbleTextView and sub classes -->
+    <style name="BaseIcon">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:defaultFocusHighlightEnabled">false</item>
+
+        <!-- No shadows in the base theme -->
+        <item name="android:shadowRadius">0</item>
+    </style>
+
+    <!-- Icon displayed on the worksapce -->
+    <style name="BaseIcon.Workspace">
+        <item name="android:shadowRadius">2.0</item>
+        <item name="android:shadowColor">?attr/workspaceShadowColor</item>
+        <item name="ambientShadowColor">?attr/workspaceAmbientShadowColor</item>
+        <item name="ambientShadowBlur">2.5dp</item>
+        <item name="keyShadowColor">?attr/workspaceKeyShadowColor</item>
+        <item name="keyShadowBlur">1dp</item>
+        <item name="keyShadowOffset">.5dp</item>
+    </style>
+</resources>

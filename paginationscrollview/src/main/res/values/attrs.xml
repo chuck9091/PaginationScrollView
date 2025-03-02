@@ -28,4 +28,33 @@
     <declare-styleable name="InsettableFrameLayout_Layout">
         <attr name="layout_ignoreInsets" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="ShadowInfo">
+        <attr name="ambientShadowColor" format="color" />
+        <attr name="ambientShadowBlur" format="dimension" />
+        <attr name="keyShadowColor" format="color" />
+        <attr name="keyShadowBlur" format="dimension" />
+        <attr name="keyShadowOffset" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CellLayout">
+        <attr name="containerType" format="integer">
+            <enum name="workspace" value="0" />
+        </attr>
+    </declare-styleable>
+
+    <!-- BubbleTextView specific attributes. -->
+    <declare-styleable name="BubbleTextView">
+        <attr name="layoutHorizontal" format="boolean" />
+        <attr name="iconSizeOverride" format="dimension" />
+        <attr name="iconDisplay" format="integer">
+            <enum name="workspace" value="0" />
+        </attr>
+        <attr name="centerVertically" format="boolean" />
+    </declare-styleable>
+
+    <attr name="workspaceTextColor" format="color" />
+    <attr name="workspaceShadowColor" format="color" />
+    <attr name="workspaceAmbientShadowColor" format="color"/>
+    <attr name="workspaceKeyShadowColor" format="color" />
 </resources>

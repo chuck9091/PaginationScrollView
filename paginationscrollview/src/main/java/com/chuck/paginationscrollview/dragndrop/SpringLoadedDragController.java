@@ -20,6 +20,7 @@ package com.chuck.paginationscrollview.dragndrop;
 import com.chuck.paginationscrollview.helper.Alarm;
 import com.chuck.paginationscrollview.interfaces.OnAlarmListener;
 import com.chuck.paginationscrollview.view.CellLayout;
+import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.Workspace;
 
 public class SpringLoadedDragController implements OnAlarmListener {
@@ -31,10 +32,10 @@ public class SpringLoadedDragController implements OnAlarmListener {
 
     // the screen the user is currently hovering over, if any
     private CellLayout mScreen;
-    private Launcher mLauncher;
+    private PaginationScrollView mPaginationScrollView;
 
-    public SpringLoadedDragController(Launcher launcher) {
-        mLauncher = launcher;
+    public SpringLoadedDragController(PaginationScrollView paginationScrollView) {
+        mPaginationScrollView = paginationScrollView;
         mAlarm = new Alarm();
         mAlarm.setOnAlarmListener(this);
     }
@@ -55,13 +56,13 @@ public class SpringLoadedDragController implements OnAlarmListener {
     public void onAlarm(Alarm alarm) {
         if (mScreen != null) {
             // Snap to the screen that we are hovering over now
-            Workspace w = mLauncher.getWorkspace();
+            Workspace w = mPaginationScrollView.getWorkspace();
             int page = w.indexOfChild(mScreen);
             if (page != w.getCurrentPage()) {
                 w.snapToPage(page);
             }
         } else {
-            mLauncher.getDragController().cancelDrag();
+            mPaginationScrollView.getDragController().cancelDrag();
         }
     }
 }
