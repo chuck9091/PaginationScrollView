@@ -1154,9 +1154,9 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        IBinder windowToken = getWindowToken();
+//        IBinder windowToken = getWindowToken();
         computeScroll();
-        mDragController.setWindowToken(windowToken);
+//        mDragController.setWindowToken(windowToken);
     }
 
     protected void onDetachedFromWindow() {

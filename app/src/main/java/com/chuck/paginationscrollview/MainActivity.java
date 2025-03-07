@@ -11,10 +11,14 @@ import com.chuck.paginationscrollview.dragndrop.DragLayer;
 import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.Workspace;
 
+import com.chuck.paginationscrollview.util.LogUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final String TAG = "MainActivity";
 
     private final int[] fruits = new int[]{
             R.drawable.boluo,
@@ -78,10 +82,14 @@ public class MainActivity extends AppCompatActivity {
             itemInfo.title = "水果" + i;
             itemInfo.spanX = 1;
             itemInfo.spanY = 1;
-            itemInfo.cellX = i / column;
-            itemInfo.cellY = i % column;
+            //列
+            itemInfo.cellX = i % column;
+            LogUtils.d(TAG, "cellX: " + itemInfo.cellX);
+            //行
+            itemInfo.cellY = (i % column) % row;
             itemInfo.screenId = i / total;
             itemInfos.add(itemInfo);
+            LogUtils.d(TAG, "itemInfo: " + itemInfo);
         }
         paginationScrollView.bindItems(itemInfos, true);
     }

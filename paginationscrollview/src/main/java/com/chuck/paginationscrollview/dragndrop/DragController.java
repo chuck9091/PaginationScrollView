@@ -85,7 +85,7 @@ public class DragController implements DragDriver.EventListener, TouchController
     /**
      * The window token used as the parent for the DragView.
      */
-    private IBinder mWindowToken;
+//    private IBinder mWindowToken;
 
     private View mMoveTarget;
 
@@ -151,7 +151,7 @@ public class DragController implements DragDriver.EventListener, TouchController
         Context context = paginationScrollView.getContext();
 
         // Hide soft keyboard, if visible
-        UiThreadHelper.hideKeyboardAsync(context, mWindowToken);
+//        UiThreadHelper.hideKeyboardAsync(context, mWindowToken);
 
         mOptions = options;
         if (mOptions.systemDndStartPoint != null) {
@@ -624,7 +624,7 @@ public class DragController implements DragDriver.EventListener, TouchController
     }
 
     public void setWindowToken(IBinder token) {
-        mWindowToken = token;
+//        mWindowToken = token;
     }
 
     /**

@@ -126,6 +126,14 @@ public class PaginationScrollView extends FrameLayout {
 
     public void setWorkspace(Workspace workspace) {
         this.workspace = workspace;
+
+        // Setup the drag layer
+        dragLayer.setup(dragController, workspace);
+//        UiFactory.setOnTouchControllersChangedListener(this, dragLayer::recreateControllers);
+
+        workspace.setup(dragController);
+        workspace.bindAndInitFirstWorkspaceScreen(null /* recycled qsb */);
+        dragController.addDragListener(workspace);
     }
 
     public Workspace getWorkspace() {

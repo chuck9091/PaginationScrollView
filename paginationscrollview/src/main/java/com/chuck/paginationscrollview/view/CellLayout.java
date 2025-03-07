@@ -63,6 +63,7 @@ import com.chuck.paginationscrollview.util.GridOccupancy;
 import com.chuck.paginationscrollview.util.LauncherAnimUtils;
 import com.chuck.paginationscrollview.util.ParcelableSparseArray;
 import com.chuck.paginationscrollview.util.Themes;
+import com.chuck.paginationscrollview.util.LogUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -215,6 +216,7 @@ public class CellLayout extends ViewGroup {
 
         mCountX = grid.numColumns;
         mCountY = grid.numRows;
+        LogUtils.d(TAG, "PaginationProfile: " + grid);
         mOccupied = new GridOccupancy(mCountX, mCountY);
         mTmpOccupied = new GridOccupancy(mCountX, mCountY);
 
@@ -2407,6 +2409,7 @@ public class CellLayout extends ViewGroup {
     }
 
     public boolean isOccupied(int x, int y) {
+        LogUtils.d(TAG, "x:" + x + ",y:" + y + ",mCountX:" + mCountX + ",mCountY:" + mCountY);
         if (x < mCountX && y < mCountY) {
             return mOccupied.cells[x][y];
         } else {

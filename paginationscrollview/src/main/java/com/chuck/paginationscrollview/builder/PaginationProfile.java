@@ -114,6 +114,31 @@ public final class PaginationProfile {
         return isVerticalBarLayout;
     }
 
+    @Override
+    public String toString() {
+        return "PaginationProfile{" +
+                "insets=" + insets +
+                ", edgeMarginPx=" + edgeMarginPx +
+                ", isTablet=" + isTablet +
+                ", iconSizePx=" + iconSizePx +
+                ", shouldFadeAdjacentWorkspaceScreens=" + shouldFadeAdjacentWorkspaceScreens +
+                ", defaultPageSpacingPx=" + defaultPageSpacingPx +
+                ", cellLayoutPaddingLeftRightPx=" + cellLayoutPaddingLeftRightPx +
+                ", cellLayoutBottomPaddingPx=" + cellLayoutBottomPaddingPx +
+                ", heightPx=" + heightPx +
+                ", widthPx=" + widthPx +
+                ", numColumns=" + numColumns +
+                ", numRows=" + numRows +
+                ", cellWidthPx=" + cellWidthPx +
+                ", cellHeightPx=" + cellHeightPx +
+                ", iconTextSizePx=" + iconTextSizePx +
+                ", iconDrawablePaddingPx=" + iconDrawablePaddingPx +
+                ", workspacePadding=" + workspacePadding +
+                ", workspaceCellPaddingXPx=" + workspaceCellPaddingXPx +
+                ", isVerticalBarLayout=" + isVerticalBarLayout +
+                '}';
+    }
+
     public PaginationProfile(Builder builder) {
         this.workspaceCellPaddingXPx = builder.workspaceCellPaddingXPx;
         this.isVerticalBarLayout = builder.isVerticalBarLayout;
