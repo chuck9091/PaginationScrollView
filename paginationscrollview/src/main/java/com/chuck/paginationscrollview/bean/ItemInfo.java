@@ -20,10 +20,20 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
+import com.chuck.model.database.PaginationItems;
+import com.chuck.model.utils.ContentWriter;
+
 /**
  * Represents an item in the launcher.
  */
 public class ItemInfo {
+
+    public static final int NO_ID = -1;
+
+    public long container;
+
+    public int id;
+
     /**
      * Indicates the screen in which the shortcut appears if the container types is
      */
@@ -105,5 +115,18 @@ public class ItemInfo {
      */
     public boolean isDisabled() {
         return false;
+    }
+
+    public void onAddToDatabase(ContentWriter writer) {
+        writeToValues(writer);
+    }
+
+    public void writeToValues(ContentWriter writer) {
+        writer.put(PaginationItems.CONTAINER, container)
+                .put(PaginationItems.SCREEN, screenId)
+                .put(PaginationItems.CELLX, cellX)
+                .put(PaginationItems.CELLY, cellY)
+                .put(PaginationItems.SPANX, spanX)
+                .put(PaginationItems.SPANY, spanY);
     }
 }

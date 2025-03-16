@@ -45,6 +45,7 @@ import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.helper.CheckLongPressHelper;
 import com.chuck.paginationscrollview.helper.StylusEventHelper;
 import com.chuck.paginationscrollview.interfaces.SimpleOnStylusPressListener;
+import com.chuck.paginationscrollview.util.LogUtils;
 
 /**
  * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan
@@ -52,6 +53,8 @@ import com.chuck.paginationscrollview.interfaces.SimpleOnStylusPressListener;
  * too aggressive.
  */
 public class BubbleTextView extends TextView {
+
+    private final String TAG = "BubbleTextView";
 
     private static final int DISPLAY_WORKSPACE = 0;
     private static final int DISPLAY_ALL_APPS = 1;
@@ -125,6 +128,7 @@ public class BubbleTextView extends TextView {
 
     public BubbleTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        LogUtils.d(TAG,"init");
         PaginationProfile grid = PaginationScrollView.getInstance().getPaginationProfile();
         mSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
@@ -169,6 +173,7 @@ public class BubbleTextView extends TextView {
     }
 
     private void applyIconAndLabel(ItemInfo info) {
+        LogUtils.d(TAG,"applyIconAndLabel info:" + info);
         Drawable iconDrawable = info.iconDrawable;
         setIcon(iconDrawable);
         setText(info.title);
@@ -359,6 +364,7 @@ public class BubbleTextView extends TextView {
      * Sets the icon for this view based on the layout direction.
      */
     private void setIcon(Drawable icon) {
+        LogUtils.d(TAG,"setIcon");
         if (mIsIconVisible) {
             applyCompoundDrawables(icon);
         }
@@ -372,6 +378,7 @@ public class BubbleTextView extends TextView {
     }
 
     protected void applyCompoundDrawables(Drawable icon) {
+        LogUtils.d(TAG,"applyCompoundDrawables");
         // If we had already set an icon before, disable relayout as the icon size is the
         // same as before.
         mDisableRelayout = mIcon != null;

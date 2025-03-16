@@ -19,11 +19,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
-import com.chuck.paginationscrollview.builder.PageIndicatorProfile;
 import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.view.Insettable;
 import com.chuck.paginationscrollview.R;
-import com.chuck.paginationscrollview.view.PaginationScrollView;
 import com.chuck.paginationscrollview.view.Utilities;
 
 /**

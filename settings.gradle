@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 rootProject.name = "PaginationScrollView"
 include ':app'
 include ':paginationscrollview'
+include ':model'
+include ':Utils'

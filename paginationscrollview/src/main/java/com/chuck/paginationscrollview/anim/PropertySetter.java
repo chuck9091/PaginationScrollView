@@ -26,7 +26,6 @@ import android.view.View;
  * Utility class for setting a property with or without animation
  */
 public class PropertySetter {
-
     public static final PropertySetter NO_ANIM_PROPERTY_SETTER = new PropertySetter();
 
     public void setViewAlpha(View view, float alpha, TimeInterpolator interpolator) {

@@ -18,7 +18,6 @@ package com.chuck.paginationscrollview.view;
 
 import static android.view.MotionEvent.ACTION_DOWN;
 
-import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Rect;
 import android.view.MotionEvent;
@@ -37,20 +36,16 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
     @CellLayout.ContainerType
     private final int mContainerType;
-    private final WallpaperManager mWallpaperManager;
 
     private int mCellWidth;
     private int mCellHeight;
 
     private int mCountX;
 
-    private PaginationScrollView mPaginationScrollView;
     private boolean mInvertIfRtl = false;
 
     public ShortcutAndWidgetContainer(Context context, @CellLayout.ContainerType int containerType) {
         super(context);
-        mPaginationScrollView = PaginationScrollView.getInstance();
-        mWallpaperManager = WallpaperManager.getInstance(context);
         mContainerType = containerType;
     }
 
@@ -141,13 +136,6 @@ public class ShortcutAndWidgetContainer extends ViewGroup {
 
                 if (lp.dropped) {
                     lp.dropped = false;
-
-                    final int[] cellXY = mTmpCellXY;
-                    getLocationOnScreen(cellXY);
-                    mWallpaperManager.sendWallpaperCommand(getWindowToken(),
-                            WallpaperManager.COMMAND_DROP,
-                            cellXY[0] + childLeft + lp.width / 2,
-                            cellXY[1] + childTop + lp.height / 2, 0, null);
                 }
             }
         }

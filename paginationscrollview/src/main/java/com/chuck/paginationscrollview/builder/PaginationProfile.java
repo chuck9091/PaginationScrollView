@@ -1,6 +1,8 @@
 package com.chuck.paginationscrollview.builder;
 
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.provider.CalendarContract;
 
 public final class PaginationProfile {
     public Rect insets;
@@ -35,6 +37,8 @@ public final class PaginationProfile {
     public int workspaceCellPaddingXPx;
 
     public boolean isVerticalBarLayout;
+
+    public int cellTextColor = Color.BLACK;
 
     private static PaginationProfile paginationProfile;
 
@@ -114,6 +118,10 @@ public final class PaginationProfile {
         return isVerticalBarLayout;
     }
 
+    public int getCellTextColor() {
+        return cellTextColor;
+    }
+
     @Override
     public String toString() {
         return "PaginationProfile{" +
@@ -160,6 +168,7 @@ public final class PaginationProfile {
         this.iconTextSizePx = builder.iconTextSizePx;
         this.iconDrawablePaddingPx = builder.iconDrawablePaddingPx;
         this.workspacePadding = builder.workspacePadding;
+        this.cellTextColor = builder.cellTextColor;
         paginationProfile = this;
     }
 
@@ -208,6 +217,8 @@ public final class PaginationProfile {
         public int workspaceCellPaddingXPx;
 
         public boolean isVerticalBarLayout;
+
+        public int cellTextColor;
 
         public Builder setInsets(Rect insets) {
             this.insets = insets;
@@ -301,6 +312,11 @@ public final class PaginationProfile {
 
         public Builder setVerticalBarLayout(boolean verticalBarLayout) {
             isVerticalBarLayout = verticalBarLayout;
+            return this;
+        }
+
+        public Builder setCellTextColor(int textColor) {
+            this.cellTextColor = textColor;
             return this;
         }
 

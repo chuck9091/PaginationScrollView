@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 /* Copyright 2008, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +22,11 @@
     <declare-styleable name="PagedView">
         <!-- The page indicator for this workspace -->
         <attr name="pageIndicator" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="PaginationScrollView">
+        <attr name="dragLayer" format="reference" />
+        <attr name="workspace" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="InsettableFrameLayout_Layout">
@@ -55,6 +59,6 @@
 
     <attr name="workspaceTextColor" format="color" />
     <attr name="workspaceShadowColor" format="color" />
-    <attr name="workspaceAmbientShadowColor" format="color"/>
+    <attr name="workspaceAmbientShadowColor" format="color" />
     <attr name="workspaceKeyShadowColor" format="color" />
 </resources>

@@ -94,21 +94,31 @@ public class WorkspaceStateTransitionAnimation {
                 NO_ANIM_PROPERTY_SETTER, new AnimatorSetBuilder(), new AnimationConfig());
     }
 
+    /**
+     * if this method is called and the child in CellLayout in second page will be in transparent.
+     *
+     * @param cl
+     * @param childIndex
+     * @param pageAlphaProvider
+     * @param propertySetter
+     * @param builder
+     * @param config
+     */
     private void applyChildState(CellLayout cl, int childIndex,
                                  WorkspaceState.PageAlphaProvider pageAlphaProvider, PropertySetter propertySetter,
                                  AnimatorSetBuilder builder, AnimationConfig config) {
-        float pageAlpha = pageAlphaProvider.getPageAlpha(childIndex);
-        int drawableAlpha = Math.round(pageAlpha * (WorkspaceState.hasWorkspacePageBackground ? 255 : 0));
-
-        if (config.playNonAtomicComponent()) {
-            propertySetter.setInt(cl.getScrimBackground(),
-                    DRAWABLE_ALPHA, drawableAlpha, ZOOM_OUT);
-        }
-        if (config.playAtomicComponent()) {
-            Interpolator fadeInterpolator = builder.getInterpolator(ANIM_WORKSPACE_FADE,
-                    pageAlphaProvider.interpolator);
-            propertySetter.setFloat(cl.getShortcutsAndWidgets(), View.ALPHA,
-                    pageAlpha, fadeInterpolator);
-        }
+//        float pageAlpha = pageAlphaProvider.getPageAlpha(childIndex);
+//        int drawableAlpha = Math.round(pageAlpha * (WorkspaceState.hasWorkspacePageBackground ? 255 : 0));
+//
+//        if (config.playNonAtomicComponent()) {
+//            propertySetter.setInt(cl.getScrimBackground(),
+//                    DRAWABLE_ALPHA, drawableAlpha, ZOOM_OUT);
+//        }
+//        if (config.playAtomicComponent()) {
+//            Interpolator fadeInterpolator = builder.getInterpolator(ANIM_WORKSPACE_FADE,
+//                    pageAlphaProvider.interpolator);
+//            propertySetter.setFloat(cl.getShortcutsAndWidgets(), View.ALPHA,
+//                    pageAlpha, fadeInterpolator);
+//        }
     }
 }

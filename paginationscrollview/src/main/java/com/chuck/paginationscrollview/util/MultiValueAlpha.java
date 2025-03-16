@@ -23,7 +23,7 @@ import android.view.View;
  * Utility class to handle separating a single value as a factor of multiple values
  */
 public class MultiValueAlpha {
-
+    private final String TAG = "MultiValueAlpha";
     public static final Property<AlphaProperty, Float> VALUE =
             new Property<AlphaProperty, Float>(Float.TYPE, "value") {
 
@@ -90,7 +90,7 @@ public class MultiValueAlpha {
             // recomputed. Change mValidMask to indicate the new valid caches (only our own).
             mValidMask = mMyMask;
             mValue = value;
-
+            LogUtils.d(TAG, "setAlpha alpha:" + (mOthers * mValue));
             mView.setAlpha(mOthers * mValue);
         }
 

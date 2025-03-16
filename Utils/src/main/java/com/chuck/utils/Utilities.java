@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chuck.paginationscrollview.view;
+package com.chuck.utils;
 
 import android.app.WallpaperManager;
 import android.content.ComponentName;
@@ -27,6 +27,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -49,8 +50,6 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Interpolator;
-
-import com.chuck.paginationscrollview.config.FeatureFlags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -112,7 +111,7 @@ public final class Utilities {
      */
     public static final boolean IS_DEBUG_DEVICE =
             Build.TYPE.toLowerCase(Locale.ROOT).contains("debug") ||
-            Build.TYPE.toLowerCase(Locale.ROOT).equals("eng");
+                    Build.TYPE.toLowerCase(Locale.ROOT).equals("eng");
 
     // An intent extra to indicate the horizontal scroll of the wallpaper.
     public static final String EXTRA_WALLPAPER_OFFSET = "com.android.launcher3.WALLPAPER_OFFSET";
@@ -140,14 +139,14 @@ public final class Utilities {
      * Given a coordinate relative to the descendant, find the coordinate in a parent view's
      * coordinates.
      *
-     * @param descendant The descendant to which the passed coordinate is relative.
-     * @param ancestor The root view to make the coordinates relative to.
-     * @param coord The coordinate that we want mapped.
+     * @param descendant        The descendant to which the passed coordinate is relative.
+     * @param ancestor          The root view to make the coordinates relative to.
+     * @param coord             The coordinate that we want mapped.
      * @param includeRootScroll Whether or not to account for the scroll of the descendant:
-     *          sometimes this is relevant as in a child's coordinates within the descendant.
+     *                          sometimes this is relevant as in a child's coordinates within the descendant.
      * @return The factor by which this descendant is scaled relative to this DragLayer. Caution
-     *         this scale factor is assumed to be equal in X and Y, and so if at any point this
-     *         assumption fails, we will need to return a pair of scale factors.
+     * this scale factor is assumed to be equal in X and Y, and so if at any point this
+     * assumption fails, we will need to return a pair of scale factors.
      */
     public static float getDescendantCoordRelativeToAncestor(
             View descendant, View ancestor, int[] coord, boolean includeRootScroll) {
@@ -156,7 +155,7 @@ public final class Utilities {
 
         float scale = 1.0f;
         View v = descendant;
-        while(v != ancestor && v != null) {
+        while (v != ancestor && v != null) {
             // For TextViews, scroll has a meaning which relates to the text position
             // which is very strange... ignore the scroll.
             if (v != descendant || includeRootScroll) {
@@ -183,7 +182,7 @@ public final class Utilities {
     public static void mapCoordInSelfToDescendant(View descendant, View root, int[] coord) {
         sMatrix.reset();
         View v = descendant;
-        while(v != root) {
+        while (v != root) {
             sMatrix.postTranslate(-v.getScrollX(), -v.getScrollY());
             sMatrix.postConcat(v.getMatrix());
             sMatrix.postTranslate(v.getLeft(), v.getTop());
@@ -218,7 +217,7 @@ public final class Utilities {
         sLoc0[1] += (v0.getMeasuredHeight() * v0.getScaleY()) / 2;
         sLoc1[0] += (v1.getMeasuredWidth() * v1.getScaleX()) / 2;
         sLoc1[1] += (v1.getMeasuredHeight() * v1.getScaleY()) / 2;
-        return new int[] {sLoc1[0] - sLoc0[0], sLoc1[1] - sLoc0[1]};
+        return new int[]{sLoc1[0] - sLoc0[0], sLoc1[1] - sLoc0[1]};
     }
 
     public static void scaleRectFAboutCenter(RectF r, float scale) {
@@ -227,7 +226,7 @@ public final class Utilities {
             float cy = r.centerY();
             r.offset(-cx, -cy);
             r.left = r.left * scale;
-            r.top = r.top * scale ;
+            r.top = r.top * scale;
             r.right = r.right * scale;
             r.bottom = r.bottom * scale;
             r.offset(cx, cy);
@@ -276,15 +275,16 @@ public final class Utilities {
 
     /**
      * Maps t from one range to another range.
-     * @param t The value to map.
+     *
+     * @param t       The value to map.
      * @param fromMin The lower bound of the range that t is being mapped from.
      * @param fromMax The upper bound of the range that t is being mapped from.
-     * @param toMin The lower bound of the range that t is being mapped to.
-     * @param toMax The upper bound of the range that t is being mapped to.
+     * @param toMin   The lower bound of the range that t is being mapped to.
+     * @param toMax   The upper bound of the range that t is being mapped to.
      * @return The mapped value of t.
      */
     public static float mapToRange(float t, float fromMin, float fromMax, float toMin, float toMax,
-            Interpolator interpolator) {
+                                   Interpolator interpolator) {
         if (fromMin == fromMax || toMin == toMax) {
             Log.e(TAG, "mapToRange: range has 0 length");
             return toMin;
@@ -432,14 +432,16 @@ public final class Utilities {
         return false;
     }
 
-    public static float dpiFromPx(int size, DisplayMetrics metrics){
+    public static float dpiFromPx(int size, DisplayMetrics metrics) {
         float densityRatio = (float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
         return (size / densityRatio);
     }
+
     public static int pxFromDp(float size, DisplayMetrics metrics) {
         return (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 size, metrics));
     }
+
     public static int pxFromSp(float size, DisplayMetrics metrics) {
         return (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
                 size, metrics));
@@ -493,7 +495,8 @@ public final class Utilities {
     /**
      * Wraps a message with a TTS span, so that a different message is spoken than
      * what is getting displayed.
-     * @param msg original message
+     *
+     * @param msg    original message
      * @param ttsMsg message to be spoken
      */
     public static CharSequence wrapForTts(CharSequence msg, String ttsMsg) {
@@ -508,16 +511,6 @@ public final class Utilities {
      */
     public static int longCompare(long lhs, long rhs) {
         return lhs < rhs ? -1 : (lhs == rhs ? 0 : 1);
-    }
-
-    public static SharedPreferences getPrefs(Context context) {
-        return context.getSharedPreferences(
-                LauncherFiles.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
-    }
-
-    public static SharedPreferences getDevicePrefs(Context context) {
-        return context.getSharedPreferences(
-                LauncherFiles.DEVICE_PREFERENCES_KEY, Context.MODE_PRIVATE);
     }
 
     public static boolean isPowerSaverPreventingAnimation(Context context) {
@@ -535,7 +528,8 @@ public final class Utilities {
                 WallpaperManager wm = context.getSystemService(WallpaperManager.class);
                 return (Boolean) wm.getClass().getDeclaredMethod("isSetWallpaperAllowed")
                         .invoke(wm);
-            } catch (Exception e) { }
+            } catch (Exception e) {
+            }
         }
         return true;
     }
@@ -545,9 +539,7 @@ public final class Utilities {
             try {
                 c.close();
             } catch (IOException e) {
-                if (FeatureFlags.IS_DOGFOOD_BUILD) {
-                    Log.d(TAG, "Error closing", e);
-                }
+                Log.d(TAG, "Error closing", e);
             }
         }
     }
@@ -572,7 +564,9 @@ public final class Utilities {
         return true;
     }
 
-    /** Returns whether the collection is null or empty. */
+    /**
+     * Returns whether the collection is null or empty.
+     */
     public static boolean isEmpty(Collection c) {
         return c == null || c.isEmpty();
     }
@@ -589,14 +583,14 @@ public final class Utilities {
                 Class<?> cls = Class.forName(className);
                 return (T) cls.getDeclaredConstructor(Context.class).newInstance(context);
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                    | ClassCastException | NoSuchMethodException | InvocationTargetException e) {
+                     | ClassCastException | NoSuchMethodException | InvocationTargetException e) {
                 Log.e(TAG, "Bad overriden class", e);
             }
         }
 
         try {
             return clazz.newInstance();
-        } catch (InstantiationException|IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -618,5 +612,26 @@ public final class Utilities {
         Message msg = Message.obtain(handler, callback);
         msg.setAsynchronous(true);
         handler.sendMessage(msg);
+    }
+
+    /**
+     * Utility class to simplify managing sqlite transactions
+     */
+    public static class SQLiteTransaction implements AutoCloseable {
+        private final SQLiteDatabase mDb;
+
+        public SQLiteTransaction(SQLiteDatabase db) {
+            mDb = db;
+            db.beginTransaction();
+        }
+
+        public void commit() {
+            mDb.setTransactionSuccessful();
+        }
+
+        @Override
+        public void close() {
+            mDb.endTransaction();
+        }
     }
 }

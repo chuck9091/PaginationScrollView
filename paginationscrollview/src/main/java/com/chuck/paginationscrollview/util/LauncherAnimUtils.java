@@ -32,6 +32,9 @@ import java.util.HashSet;
 import java.util.WeakHashMap;
 
 public class LauncherAnimUtils {
+
+    private final static String TAG = "LauncherAnimUtils";
+
     /**
      * Durations for various state animations. These are not defined in resources to allow
      * easier access from static classes and enums
@@ -152,6 +155,7 @@ public class LauncherAnimUtils {
 
                 @Override
                 public void set(Drawable drawable, Integer alpha) {
+                    LogUtils.d(TAG,"setAlpha alpha:" + alpha);
                     drawable.setAlpha(alpha);
                 }
             };

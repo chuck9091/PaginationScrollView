@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,6 +62,10 @@ public class PaginationScrollView extends FrameLayout {
     @Thunk
     static final int NEW_APPS_ANIMATION_DELAY = 500;
 
+    private int mDragLayerViewId;
+
+    private int mWorkspaceViewId;
+
     public PaginationScrollView(@NonNull Context context) {
         super(context);
         init(context);
@@ -79,6 +84,27 @@ public class PaginationScrollView extends FrameLayout {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+    }
+
+    public void initChildViews(Workspace workspace, DragLayer dragLayer) {
+//        TypedArray a = getContext().obtainStyledAttributes(null,
+//                R.styleable.PaginationScrollView, 0, 0);
+//        mDragLayerViewId = a.getResourceId(R.styleable.PaginationScrollView_dragLayer, -1);
+//        mWorkspaceViewId = a.getResourceId(R.styleable.PaginationScrollView_workspace, -1);
+//        LogUtils.d(TAG, "mDragLayerViewId: " + mDragLayerViewId + " mWorkspaceViewId: " + mWorkspaceViewId);
+//        a.recycle();
+//        workspace = (Workspace) findViewById(mWorkspaceViewId);
+//        dragLayer = (DragLayer) findViewById(mDragLayerViewId);
+        this.workspace = workspace;
+        this.dragLayer = dragLayer;
+        workspace.initParentViews(dragLayer);
+        dragLayer.setup(dragController, workspace);
+        workspace.setup(dragController);
+
+        workspace.bindAndInitFirstWorkspaceScreen(null /* recycled qsb */);
+        dragController.addDragListener(workspace);
+
+        mFocusHandler = dragLayer.getFocusIndicatorHelper();
     }
 
     public PaginationScrollView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -111,29 +137,12 @@ public class PaginationScrollView extends FrameLayout {
         return this.paginationProfile;
     }
 
-    public void setDragLayer(DragLayer dragLayer) {
-        mFocusHandler = dragLayer.getFocusIndicatorHelper();
-        this.dragLayer = dragLayer;
-    }
-
     public DragLayer getDragLayer() {
         return dragLayer;
     }
 
     public DragController getDragController() {
         return dragController;
-    }
-
-    public void setWorkspace(Workspace workspace) {
-        this.workspace = workspace;
-
-        // Setup the drag layer
-        dragLayer.setup(dragController, workspace);
-//        UiFactory.setOnTouchControllersChangedListener(this, dragLayer::recreateControllers);
-
-        workspace.setup(dragController);
-        workspace.bindAndInitFirstWorkspaceScreen(null /* recycled qsb */);
-        dragController.addDragListener(workspace);
     }
 
     public Workspace getWorkspace() {
@@ -144,7 +153,7 @@ public class PaginationScrollView extends FrameLayout {
         return false;
     }
 
-    private static int viewId = 1;
+    private static int viewId = 123;
 
     public int getViewIdForItem(ItemInfo info) {
         // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
@@ -160,10 +169,11 @@ public class PaginationScrollView extends FrameLayout {
         this.itemClickHandler = itemClickHandler;
     }
 
-
     public View createShortcut(ViewGroup parent, ItemInfo info) {
         BubbleTextView favorite = (BubbleTextView) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.app_icon, parent, false);
+        favorite.setTextColor(paginationProfile.getCellTextColor());
+        favorite.applyFromItemInfo(info);
         favorite.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,15 +219,18 @@ public class PaginationScrollView extends FrameLayout {
     }
 
     private void bindAddScreens(int pageCount) {
-        for (int i = 0; i < pageCount; i++) {
+        for (int i = 1; i < pageCount; i++) {
             long screenId = i;
+            LogUtils.d(TAG, "bindAddScreens: " + screenId);
             workspace.insertNewWorkspaceScreenBeforeEmptyScreen(screenId);
         }
     }
 
     public void bindItems(final List<ItemInfo> items, final boolean forceAnimateIcons) {
-        int pageSize = items.size() / (paginationProfile.getNumColumns() * paginationProfile.getNumRows());
-        bindAddScreens(pageSize);
+        int sizePerPage = paginationProfile.getNumColumns() * paginationProfile.getNumRows();
+        int pageCount = (items.size() + sizePerPage - 1) / sizePerPage;
+        LogUtils.d(TAG, "bindItems pageCount: " + pageCount);
+        bindAddScreens(pageCount);
         // Get the list of added items and intersect them with the set of items here
         final AnimatorSet anim = LauncherAnimUtils.createAnimatorSet();
         final Collection<Animator> bounceAnims = new ArrayList<>();

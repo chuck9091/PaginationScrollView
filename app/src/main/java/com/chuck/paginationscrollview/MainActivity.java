@@ -50,47 +50,55 @@ public class MainActivity extends AppCompatActivity {
         final int column = 5;
 
         PaginationProfile paginationProfile = (PaginationProfile) new PaginationProfile.Builder()
-                .setHeightPx(1200)
-                .setWidthPx(800)
-                .setCellHeightPx(100)
-                .setCellWidthPx(60)
+                .setHeightPx(750)
+                .setWidthPx(360)
+                .setCellHeightPx(48)
+                .setCellWidthPx(48)
                 .setNumColumns(column)
                 .setNumRows(row)
-                .setIconDrawablePaddingPx(8)
-                .setDefaultPageSpacingPx(10)
-                .setEdgeMarginPx(8)
-                .setIconSizePx(48)
+                .setIconDrawablePaddingPx(2)
+                .setDefaultPageSpacingPx(2)
+                .setEdgeMarginPx(2)
+                .setIconSizePx(36)
+                .setIconTextSizePx(16)
+                .setCellTextColor(getColor(R.color.black))
                 .setWorkspacePadding(new Rect(0, 0, 0, 0))
                 .build();
 
         setContentView(R.layout.activity_main);
 
         PaginationScrollView paginationScrollView = findViewById(R.id.pagination_scroll_view);
-        DragLayer dragLayer = findViewById(R.id.drag_layer);
-        paginationScrollView.setDragLayer(dragLayer);
-        Workspace workspace = findViewById(R.id.workspace);
-        paginationScrollView.setWorkspace(workspace);
-
         paginationScrollView.setPaginationProfile(paginationProfile);
+        paginationScrollView.initChildViews(findViewById(R.id.workspace), findViewById(R.id.drag_layer));
 
-        int total = row * column;
+        int sizePerPage = row * column;
 
         List<ItemInfo> itemInfos = new ArrayList<>();
+        int currentRow = -1;
         for (int i = 0; i < fruits.length; i++) {
             ItemInfo itemInfo = new ItemInfo();
             itemInfo.iconDrawable = getDrawable(fruits[i]);
             itemInfo.title = "水果" + i;
             itemInfo.spanX = 1;
             itemInfo.spanY = 1;
+
+            int currentItemIndexInPage = i % sizePerPage;
+            if (currentItemIndexInPage == 0) {
+                currentRow = 0;
+            }
+
             //列
-            itemInfo.cellX = i % column;
+            itemInfo.cellX = currentItemIndexInPage % column;
             LogUtils.d(TAG, "cellX: " + itemInfo.cellX);
+            if (currentItemIndexInPage != 0 && currentItemIndexInPage % column == 0) {
+                currentRow++;
+            }
             //行
-            itemInfo.cellY = (i % column) % row;
-            itemInfo.screenId = i / total;
+            itemInfo.cellY = currentRow;
+            itemInfo.screenId = i / sizePerPage;
             itemInfos.add(itemInfo);
             LogUtils.d(TAG, "itemInfo: " + itemInfo);
         }
-        paginationScrollView.bindItems(itemInfos, true);
+        paginationScrollView.bindItems(itemInfos, false);
     }
 }

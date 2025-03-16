@@ -32,12 +32,15 @@ import android.view.View;
 import android.view.View.OnFocusChangeListener;
 
 import com.chuck.paginationscrollview.R;
+import com.chuck.paginationscrollview.util.LogUtils;
 
 /**
  * A helper class to draw background of a focused view.
  */
 public abstract class FocusIndicatorHelper implements
         OnFocusChangeListener, AnimatorUpdateListener {
+
+    private static final String TAG = "FocusIndicatorHelper";
 
     private static final float MIN_VISIBLE_ALPHA = 0.2f;
     private static final long ANIM_DURATION = 150;
@@ -46,6 +49,7 @@ public abstract class FocusIndicatorHelper implements
             new Property<FocusIndicatorHelper, Float>(Float.TYPE, "alpha") {
                 @Override
                 public void set(FocusIndicatorHelper object, Float value) {
+                    LogUtils.d(TAG,"setAlpha object:" + object + ",value:" + value);
                     object.setAlpha(value);
                 }
 
@@ -101,13 +105,14 @@ public abstract class FocusIndicatorHelper implements
         int color = container.getResources().getColor(R.color.focused_background);
         mMaxAlpha = Color.alpha(color);
         mPaint.setColor(0xFF000000 | color);
-
+        LogUtils.d(TAG,"setAlpha alpha 0");
         setAlpha(0);
         mShift = 0;
     }
 
     protected void setAlpha(float alpha) {
         mAlpha = alpha;
+        LogUtils.d(TAG,"setAlpha alpha:" + alpha);
         mPaint.setAlpha((int) (mAlpha * mMaxAlpha));
     }
 

@@ -78,7 +78,7 @@ public class CellLayout extends ViewGroup {
     public static final int FOLDER_ACCESSIBILITY_DRAG = 1;
 
     private static final String TAG = "CellLayout";
-    private static final boolean LOGD = false;
+    private static final boolean LOGD = true;
 
     private final PaginationScrollView mPaginationScrollView;
     @ViewDebug.ExportedProperty(category = "launcher")
@@ -496,7 +496,7 @@ public class CellLayout extends ViewGroup {
     public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
                                        boolean markCells) {
         final LayoutParams lp = params;
-
+        Log.d(TAG, "addViewToCellLayout mContainerType: " + mContainerType);
         // Hotseat icons - remove text
         if (child instanceof BubbleTextView) {
             BubbleTextView bubbleChild = (BubbleTextView) child;
