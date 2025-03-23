@@ -1,5 +1,5 @@
 # PaginationScrollView(Lite-Launcher3)
-This repository bases on Launcher3,only include some viewgroups,include LauncherRootView(PaginationScrollView),Workspace,CellLayout and so on.The destination is to build a lite launcher3 to complete some function below:
+This repository bases on Launcher3,only include some viewgroups,such as LauncherRootView(PaginationScrollView),Workspace,CellLayout and so on.The destination is to build a lite launcher3 to complete some function below:
 
 - 1. Items display in grid layout and each grid layout in a page,
 - 2. Each page can be scrolled left and right by finger,
