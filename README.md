@@ -19,4 +19,4 @@ Deleting Launcher class and turn it to PaginationScrollView.
 
 # Implementation
 
-None.Fork this repository and modify codes to adjust your requirements.
+None.Fork this repository and modify codes to adjust your requirements,the detail usage is in app/MainActivity.
