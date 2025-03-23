@@ -48,7 +48,7 @@ import com.chuck.paginationscrollview.annotation.Thunk;
 import com.chuck.paginationscrollview.util.LauncherAnimUtils;
 import com.chuck.paginationscrollview.util.Themes;
 import com.chuck.paginationscrollview.view.PaginationScrollView;
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 import java.util.Arrays;
 

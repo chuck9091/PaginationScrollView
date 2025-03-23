@@ -17,7 +17,7 @@
 package com.chuck.paginationscrollview.util;
 
 
-import static com.chuck.paginationscrollview.view.Utilities.SINGLE_FRAME_MS;
+import static com.chuck.utils.Utilities.SINGLE_FRAME_MS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

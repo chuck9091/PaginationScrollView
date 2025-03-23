@@ -22,7 +22,7 @@ import android.widget.FrameLayout;
 import com.chuck.paginationscrollview.builder.PaginationProfile;
 import com.chuck.paginationscrollview.view.Insettable;
 import com.chuck.paginationscrollview.R;
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 /**
  * A PageIndicator that briefly shows a fraction of a line when moving between pages

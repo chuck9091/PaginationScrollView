@@ -30,7 +30,7 @@ import com.chuck.paginationscrollview.interfaces.TouchController;
 import com.chuck.paginationscrollview.util.MultiValueAlpha;
 import com.chuck.paginationscrollview.view.InsettableFrameLayout;
 import com.chuck.paginationscrollview.view.PaginationScrollView;
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 import java.util.ArrayList;
 

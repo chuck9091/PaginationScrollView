@@ -26,7 +26,7 @@ import android.util.Property;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 import java.util.HashSet;
 import java.util.WeakHashMap;

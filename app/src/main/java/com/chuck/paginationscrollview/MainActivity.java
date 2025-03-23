@@ -87,13 +87,13 @@ public class MainActivity extends AppCompatActivity {
                 currentRow = 0;
             }
 
-            //列
+            //column
             itemInfo.cellX = currentItemIndexInPage % column;
             LogUtils.d(TAG, "cellX: " + itemInfo.cellX);
             if (currentItemIndexInPage != 0 && currentItemIndexInPage % column == 0) {
                 currentRow++;
             }
-            //行
+            //row
             itemInfo.cellY = currentRow;
             itemInfo.screenId = i / sizePerPage;
             itemInfos.add(itemInfo);

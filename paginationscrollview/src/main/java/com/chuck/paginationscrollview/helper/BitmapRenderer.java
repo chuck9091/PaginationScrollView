@@ -21,7 +21,7 @@ import android.graphics.Canvas;
 import android.graphics.Picture;
 import android.os.Build;
 
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 public class BitmapRenderer {
 

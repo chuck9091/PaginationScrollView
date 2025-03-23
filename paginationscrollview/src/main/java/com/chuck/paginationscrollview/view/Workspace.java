@@ -69,6 +69,7 @@ import com.chuck.paginationscrollview.pageindicators.WorkspacePageIndicator;
 import com.chuck.paginationscrollview.util.LogUtils;
 import com.chuck.paginationscrollview.util.LongArrayMap;
 import com.chuck.paginationscrollview.util.WorkspaceUtils;
+import com.chuck.utils.Utilities;
 
 import java.util.ArrayList;
 
@@ -1834,7 +1835,6 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
     }
 
     public void onDragOver(DragObject d) {
-        LogUtils.d(TAG, "onDragOver");
         // Skip drag over events while we are dragging over side pages
         if (!transitionStateShouldAllowDrop()) return;
 
@@ -1852,15 +1852,30 @@ public class Workspace extends PagedView<WorkspacePageIndicator>
 
         final View child = (mDragInfo == null) ? null : mDragInfo.cell;
         if (setDropLayoutForDragObject(d, mDragViewVisualCenter[0], mDragViewVisualCenter[1])) {
+//            if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
+//                mSpringLoadedDragController.cancel();
+//            } else {
+//                mSpringLoadedDragController.setAlarm(mDragTargetLayout);
+//            }
             mSpringLoadedDragController.setAlarm(mDragTargetLayout);
         }
 
         // Handle the drag over
         if (mDragTargetLayout != null) {
+            // We want the point to be mapped to the dragTarget.
+//            if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
+//                mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
+//            } else {
+//                mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter);
+//            }
             mapPointFromSelfToChild(mDragTargetLayout, mDragViewVisualCenter);
 
             int minSpanX = item.spanX;
             int minSpanY = item.spanY;
+//            if (item.minSpanX > 0 && item.minSpanY > 0) {
+//                minSpanX = item.minSpanX;
+//                minSpanY = item.minSpanY;
+//            }
 
             mTargetCell = findNearestArea((int) mDragViewVisualCenter[0],
                     (int) mDragViewVisualCenter[1], minSpanX, minSpanY,

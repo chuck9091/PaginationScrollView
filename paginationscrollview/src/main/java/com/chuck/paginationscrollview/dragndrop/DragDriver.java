@@ -21,7 +21,7 @@ import android.view.DragEvent;
 import android.view.MotionEvent;
 
 import com.chuck.paginationscrollview.interfaces.DropTarget;
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 
 /**
  * Base class for driving a drag/drop operation.

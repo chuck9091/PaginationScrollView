@@ -20,8 +20,8 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
-import com.chuck.model.database.PaginationItems;
-import com.chuck.model.utils.ContentWriter;
+//import com.chuck.model.database.PaginationItems;
+//import com.chuck.model.utils.ContentWriter;
 
 /**
  * Represents an item in the launcher.
@@ -117,16 +117,16 @@ public class ItemInfo {
         return false;
     }
 
-    public void onAddToDatabase(ContentWriter writer) {
-        writeToValues(writer);
-    }
-
-    public void writeToValues(ContentWriter writer) {
-        writer.put(PaginationItems.CONTAINER, container)
-                .put(PaginationItems.SCREEN, screenId)
-                .put(PaginationItems.CELLX, cellX)
-                .put(PaginationItems.CELLY, cellY)
-                .put(PaginationItems.SPANX, spanX)
-                .put(PaginationItems.SPANY, spanY);
-    }
+//    public void onAddToDatabase(ContentWriter writer) {
+//        writeToValues(writer);
+//    }
+//
+//    public void writeToValues(ContentWriter writer) {
+//        writer.put(PaginationItems.CONTAINER, container)
+//                .put(PaginationItems.SCREEN, screenId)
+//                .put(PaginationItems.CELLX, cellX)
+//                .put(PaginationItems.CELLY, cellY)
+//                .put(PaginationItems.SPANX, spanX)
+//                .put(PaginationItems.SPANY, spanY);
+//    }
 }

@@ -16,7 +16,9 @@
 
 package com.chuck.paginationscrollview.anim;
 
-import static com.chuck.paginationscrollview.view.Utilities.SINGLE_FRAME_MS;
+import static com.chuck.utils.Utilities.SINGLE_FRAME_MS;
+
+import com.chuck.utils.Utilities;
 
 import android.graphics.Path;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -26,8 +28,6 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.PathInterpolator;
-
-import com.chuck.paginationscrollview.view.Utilities;
 
 
 /**

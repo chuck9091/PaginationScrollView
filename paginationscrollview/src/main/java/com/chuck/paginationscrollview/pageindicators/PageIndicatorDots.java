@@ -36,7 +36,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 
 import com.chuck.paginationscrollview.R;
-import com.chuck.paginationscrollview.view.Utilities;
+import com.chuck.utils.Utilities;
 import com.chuck.paginationscrollview.util.Themes;
 
 /**

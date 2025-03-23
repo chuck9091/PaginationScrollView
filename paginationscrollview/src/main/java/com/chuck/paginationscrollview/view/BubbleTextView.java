@@ -46,6 +46,7 @@ import com.chuck.paginationscrollview.helper.CheckLongPressHelper;
 import com.chuck.paginationscrollview.helper.StylusEventHelper;
 import com.chuck.paginationscrollview.interfaces.SimpleOnStylusPressListener;
 import com.chuck.paginationscrollview.util.LogUtils;
+import com.chuck.utils.Utilities;
 
 /**
  * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan

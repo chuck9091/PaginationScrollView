@@ -48,6 +48,7 @@ import com.chuck.paginationscrollview.anim.Interpolators;
 import com.chuck.paginationscrollview.config.FeatureFlags;
 import com.chuck.paginationscrollview.pageindicators.PageIndicator;
 import com.chuck.paginationscrollview.touch.OverScroll;
+import com.chuck.utils.Utilities;
 
 import java.util.ArrayList;
 

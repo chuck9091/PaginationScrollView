@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.chuck.paginationscrollview.builder.PaginationProfile;
+import com.chuck.utils.Utilities;
 
 
 public class ShortcutAndWidgetContainer extends ViewGroup {

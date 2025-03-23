@@ -27,6 +27,7 @@ import com.chuck.paginationscrollview.interfaces.ItemClickHandler;
 import com.chuck.paginationscrollview.interfaces.ItemInfoChangedCallBack;
 import com.chuck.paginationscrollview.util.LauncherAnimUtils;
 import com.chuck.paginationscrollview.util.LogUtils;
+import com.chuck.paginationscrollview.util.WorkspaceUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -231,6 +232,7 @@ public class PaginationScrollView extends FrameLayout {
         int pageCount = (items.size() + sizePerPage - 1) / sizePerPage;
         LogUtils.d(TAG, "bindItems pageCount: " + pageCount);
         bindAddScreens(pageCount);
+        WorkspaceUtils.setMaxScreenId(pageCount - 1);
         // Get the list of added items and intersect them with the set of items here
         final AnimatorSet anim = LauncherAnimUtils.createAnimatorSet();
         final Collection<Animator> bounceAnims = new ArrayList<>();

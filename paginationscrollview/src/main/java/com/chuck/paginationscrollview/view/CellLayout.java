@@ -64,6 +64,7 @@ import com.chuck.paginationscrollview.util.LauncherAnimUtils;
 import com.chuck.paginationscrollview.util.ParcelableSparseArray;
 import com.chuck.paginationscrollview.util.Themes;
 import com.chuck.paginationscrollview.util.LogUtils;
+import com.chuck.utils.Utilities;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -775,6 +776,8 @@ public class CellLayout extends ViewGroup {
         if (clc.indexOfChild(child) != -1) {
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
             final ItemInfo info = (ItemInfo) child.getTag();
+
+            LogUtils.d(TAG, "onDrag_animateChildToPosition info:" + info);
 
             // We cancel any existing animations
             if (mReorderAnimators.containsKey(lp)) {
@@ -1797,6 +1800,7 @@ public class CellLayout extends ViewGroup {
     // This method starts or changes the reorder preview animations
     private void beginOrAdjustReorderPreviewAnimations(ItemConfiguration solution,
                                                        View dragView, int delay, int mode) {
+        LogUtils.d(TAG, "onDrag_beginOrAdjustReorderPreviewAnimations");
         int childCount = mShortcutsAndWidgets.getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = mShortcutsAndWidgets.getChildAt(i);
@@ -1872,9 +1876,16 @@ public class CellLayout extends ViewGroup {
 
         void setInitialAnimationValues(boolean restoreOriginalValues) {
             if (restoreOriginalValues) {
-                initScale = mChildScale;
-                initDeltaX = 0;
-                initDeltaY = 0;
+                if (false) {
+//                    LauncherAppWidgetHostView lahv = (LauncherAppWidgetHostView) child;
+//                    initScale = lahv.getScaleToFit();
+//                    initDeltaX = lahv.getTranslationForCentering().x;
+//                    initDeltaY = lahv.getTranslationForCentering().y;
+                } else {
+                    initScale = mChildScale;
+                    initDeltaX = 0;
+                    initDeltaY = 0;
+                }
             } else {
                 initScale = child.getScaleX();
                 initDeltaX = child.getTranslationX();
@@ -1968,7 +1979,41 @@ public class CellLayout extends ViewGroup {
     }
 
     private void commitTempPlacement() {
+        LogUtils.d(TAG, "onDrag_commitTempPlacement");
         mTmpOccupied.copyTo(mOccupied);
+
+//        long screenId = mLauncher.getWorkspace().getIdForScreen(this);
+//        int container = Favorites.CONTAINER_DESKTOP;
+//
+//        if (mContainerType == HOTSEAT) {
+//            screenId = -1;
+//            container = Favorites.CONTAINER_HOTSEAT;
+//        }
+
+        int childCount = mShortcutsAndWidgets.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = mShortcutsAndWidgets.getChildAt(i);
+            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            ItemInfo info = (ItemInfo) child.getTag();
+            // We do a null check here because the item info can be null in the case of the
+            // AllApps button in the hotseat.
+            if (info != null) {
+                final boolean requiresDbUpdate = (info.cellX != lp.tmpCellX
+                        || info.cellY != lp.tmpCellY || info.spanX != lp.cellHSpan
+                        || info.spanY != lp.cellVSpan);
+
+                info.cellX = lp.cellX = lp.tmpCellX;
+                info.cellY = lp.cellY = lp.tmpCellY;
+                info.spanX = lp.cellHSpan;
+                info.spanY = lp.cellVSpan;
+
+                if (requiresDbUpdate) {
+                    LogUtils.d(TAG, "onDrag_commitTempPlacement info:" + info);
+//                    mLauncher.getModelWriter().modifyItemInDatabase(info, container, screenId,
+//                            info.cellX, info.cellY, info.spanX, info.spanY);
+                }
+            }
+        }
     }
 
     private void setUseTempCoords(boolean useTempCoords) {
@@ -2223,7 +2268,7 @@ public class CellLayout extends ViewGroup {
         if ((mode == MODE_ON_DROP || !foundSolution) && !DESTRUCTIVE_REORDER) {
             setUseTempCoords(false);
         }
-
+        LogUtils.d(TAG, "onDrag_requestLayout");
         mShortcutsAndWidgets.requestLayout();
         return result;
     }
