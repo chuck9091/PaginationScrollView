@@ -39,6 +39,7 @@
 -keep class com.chuck.paginationscrollview.builder.**{*;}
 -keep class com.chuck.paginationscrollview.bean.**{*;}
 -keep class com.chuck.paginationscrollview.interfaces.**{*;}
+-keep class com.chuck.utils.**{*;}
 
 # 保留注解
 -keepattributes *Annotation*
